@@ -57,8 +57,16 @@ class CoveyGameScene extends Phaser.Scene {
         this.load.image('tiles', '/assets/tilesets/conference-items.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
         break;
+      default:
+        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        break;
     }
     this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
+  }
+
+  setMap(newMap: MapSelection) {
+    this.map = newMap;
   }
 
   updatePlayersLocations(players: Player[]) {
@@ -237,6 +245,10 @@ class CoveyGameScene extends Phaser.Scene {
         break;
       case MapSelection.Conference:
         tileset = map.addTilesetImage('conference-items', 'tiles');
+        break;
+      default:
+        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
         break;
     }
     // Parameters: layer name (or index) from Tiled, tileset, x, y
