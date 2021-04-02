@@ -42,7 +42,7 @@ class CoveyGameScene extends Phaser.Scene {
 
   preload() {
     // this.load.image("logo", logoImg);
-    this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+    this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-2-extruded.png');
     // this.load.image('tiles', '/assets/tilesets/conference-items.png');
     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town2.json');
     // this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
@@ -219,7 +219,7 @@ class CoveyGameScene extends Phaser.Scene {
      tileset image in Phaser's cache (i.e. the name you used in preload)
      */
     // const tileset = map.addTilesetImage('conference-items', 'tiles');
-    const tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    const tileset = map.addTilesetImage('tuxmon-sample-32px-2-extruded', 'tiles');
 
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
