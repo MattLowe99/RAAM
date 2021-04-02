@@ -7,4 +7,4 @@ can start a development server by running `npm start`. To create a production bu
 `npm run build`.
 
 # Changes to worldMap
-WorldMap loads one of several different maps using its map property. Use setMap() to change the MapSelection. 
+WorldMap is fed the room it using when its created. This can be changed at WorldMap.tsx on Line 504
