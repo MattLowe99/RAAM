@@ -54,10 +54,10 @@ class CoveyGameScene extends Phaser.Scene {
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
         break;
-      case MapSelection.Conference:
-        this.load.image('tiles', '/assets/tilesets/conference-items.png');
-        this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
-        break;
+      // case MapSelection.Conference:
+      //   this.load.image('tiles', '/assets/tilesets/conference-items.png');
+      //   this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
+      //   break;
       case MapSelection.Classroom:
         this.load.image('tiles', '/assets/tilesets/classroom-items.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town.json');
@@ -247,16 +247,19 @@ class CoveyGameScene extends Phaser.Scene {
     switch (this.map) {
       case MapSelection.Standard:
         tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+        console.log('Standard map');
         break;
-      case MapSelection.Conference:
-        tileset = map.addTilesetImage('conference-items', 'tiles');
-        break;
+      // case MapSelection.Conference:
+      //   tileset = map.addTilesetImage('conference-items', 'tiles');
+      //   break;
       case MapSelection.Classroom:
         tileset = map.addTilesetImage('classroom-items', 'tiles');
+        console.log('Classroom map');
         break;
       default:
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        console.log('Default map');
         break;
     }
     // Parameters: layer name (or index) from Tiled, tileset, x, y
