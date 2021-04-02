@@ -4,9 +4,14 @@ import Player, { UserLocation } from '../../classes/Player';
 import Video from '../../classes/Video/Video';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
-// Random change
+enum MapSelection {
+  Standard,
+  Conference
+}
+
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
 class CoveyGameScene extends Phaser.Scene {
+
   private player?: {
     sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, label: Phaser.GameObjects.Text
   };
@@ -32,6 +37,8 @@ class CoveyGameScene extends Phaser.Scene {
 
   private video: Video;
 
+  private map = MapSelection.Standard;
+
   private emitMovement: (loc: UserLocation) => void;
 
   constructor(video: Video, emitMovement: (loc: UserLocation) => void) {
@@ -41,11 +48,16 @@ class CoveyGameScene extends Phaser.Scene {
   }
 
   preload() {
-    // this.load.image("logo", logoImg);
-    // this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
-    // this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
-    this.load.image('tiles', '/assets/tilesets/conference-items.png');
-    this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
+    switch (this.map) {
+      case MapSelection.Standard:
+        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        break;
+      case MapSelection.Conference:
+        this.load.image('tiles', '/assets/tilesets/conference-items.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
+        break;
+    }
     this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
   }
 
@@ -218,9 +230,15 @@ class CoveyGameScene extends Phaser.Scene {
     /* Parameters are the name you gave the tileset in Tiled and then the key of the
      tileset image in Phaser's cache (i.e. the name you used in preload)
      */
-    const tileset = map.addTilesetImage('conference-items', 'tiles');
-    // const tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
-
+    let tileset: Phaser.Tilemaps.Tileset;
+    switch (this.map) {
+      case MapSelection.Standard:
+        tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+        break;
+      case MapSelection.Conference:
+        tileset = map.addTilesetImage('conference-items', 'tiles');
+        break;
+    }
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const belowLayer = map.createLayer('Below Player', tileset, 0, 0);
