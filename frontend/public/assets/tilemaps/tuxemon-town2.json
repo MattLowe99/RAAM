@@ -249,11 +249,11 @@
              "orientation":"orthogonal",
              "width":16
             },
-         "image":"..\/tilesets\/tuxmon-sample-32px-extruded.png",
+         "image":"..\/tilesets\/tuxmon-sample-32px-2-extruded.png",
          "imageheight":1020,
          "imagewidth":816,
          "margin":1,
-         "name":"tuxmon-sample-32px-extruded",
+         "name":"tuxmon-sample-32px-2-extruded",
          "spacing":2,
          "terrains":[
                 {
