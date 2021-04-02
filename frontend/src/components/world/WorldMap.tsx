@@ -38,7 +38,7 @@ class CoveyGameScene extends Phaser.Scene {
 
   private video: Video;
 
-  private map = MapSelection.Conference;
+  private mapSelection = MapSelection.Conference;
 
   private emitMovement: (loc: UserLocation) => void;
 
@@ -49,31 +49,31 @@ class CoveyGameScene extends Phaser.Scene {
   }
 
   preload() {
-    if (this.map === MapSelection.Standard) {
-        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
-        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
-    } else if (this.map === MapSelection.Conference) {
-        this.load.image('tiles', '/assets/tilesets/conference-items.png');
-        this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
-    }
-    // switch (this.map) {
-    //   case MapSelection.Standard:
+    // if (this.mapSelection === MapSelection.Standard) {
     //     this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
     //     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
-    //     break;
-    //   case MapSelection.Conference:
+    // } else if (this.mapSelection === MapSelection.Conference) {
     //     this.load.image('tiles', '/assets/tilesets/conference-items.png');
     //     this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
-    //     break;
-    //   // case MapSelection.Classroom:
-    //     // this.load.image('tiles', '/assets/tilesets/classroom-items.png');
-    //     // this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town.json');
-    //     // break;
-    //   default:
-    //     this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
-    //     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
-    //     break;
     // }
+    switch (this.mapSelection) {
+      case MapSelection.Standard:
+        // this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        // this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        break;
+      case MapSelection.Conference:
+        this.load.image('tiles', '/assets/tilesets/conference-items.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
+        break;
+      // case MapSelection.Classroom:
+        // this.load.image('tiles', '/assets/tilesets/classroom-items.png');
+        // this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town.json');
+        // break;
+      default:
+        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        break;
+    }
     this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
   }
 
@@ -251,9 +251,9 @@ class CoveyGameScene extends Phaser.Scene {
      tileset image in Phaser's cache (i.e. the name you used in preload)
      */
     let tileset: Phaser.Tilemaps.Tileset;
-    if (this.map === MapSelection.Standard) {
-      tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
-    } else if (this.map === MapSelection.Conference) {
+    if (this.mapSelection === MapSelection.Standard) {
+      // tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    } else if (this.mapSelection === MapSelection.Conference) {
       tileset = map.addTilesetImage('conference-items', 'tiles');
     }
     // switch (this.map) {
