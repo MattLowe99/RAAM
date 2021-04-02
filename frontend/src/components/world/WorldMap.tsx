@@ -38,13 +38,14 @@ class CoveyGameScene extends Phaser.Scene {
 
   private video: Video;
 
-  private mapSelection = MapSelection.Conference;
+  private mapSelection: MapSelection;
 
   private emitMovement: (loc: UserLocation) => void;
 
-  constructor(video: Video, emitMovement: (loc: UserLocation) => void) {
+  constructor(mapSelection: MapSelection, video: Video, emitMovement: (loc: UserLocation) => void) {
     super('PlayGame');
     this.video = video;
+    this.mapSelection = mapSelection;
     this.emitMovement = emitMovement;
   }
 
@@ -505,7 +506,7 @@ export default function WorldMap(): JSX.Element {
 
     const game = new Phaser.Game(config);
     if (video) {
-      const newGameScene = new CoveyGameScene(video, emitMovement);
+      const newGameScene = new CoveyGameScene(MapSelection.Conference, video, emitMovement);
       setGameScene(newGameScene);
       game.scene.add('coveyBoard', newGameScene, true);
       video.pauseGame = () => {
