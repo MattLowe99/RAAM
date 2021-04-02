@@ -95,7 +95,7 @@
          "imageheight":1792,
          "imagewidth":512,
          "margin":0,
-         "name":"ConferenceItems",
+         "name":"conference-items",
          "properties":[
                 {
                  "name":"collides",
