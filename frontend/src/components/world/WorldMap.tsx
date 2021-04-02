@@ -261,7 +261,7 @@ class CoveyGameScene extends Phaser.Scene {
       //   this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
       //   console.log('Default map');
       //   break;
-    }
+    // }
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const belowLayer = map.createLayer('Below Player', tileset, 0, 0);
