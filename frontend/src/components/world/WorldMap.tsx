@@ -34,7 +34,7 @@ class CoveyGameScene extends Phaser.Scene {
   preload() {
     // this.load.image("logo", logoImg);
     // this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
-    this.load.image('tiles', '/assets/tilesets/conference-items.png');
+    this.load.image('tiles', '/assets/tilesets/confernce-items.png');
     // this.load.image('tiles', '/assets/tilesets/conference-architecture.png');
     // This is where we would need to change the map that gets loaded in
     // this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
