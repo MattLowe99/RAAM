@@ -220,14 +220,15 @@ class CoveyGameScene extends Phaser.Scene {
     /* Parameters are the name you gave the tileset in Tiled and then the key of the
      tileset image in Phaser's cache (i.e. the name you used in preload)
      */
-    const tileset = map.addTilesetImage('/assets/tilesets/conference-items.png', 'tiles');
+    // const tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    const tileset = map.addTilesetImage('conference-items', 'tiles');
 
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const belowLayer = map.createLayer('Below Player', tileset, 0, 0);
-    const worldLayer = map.createLayer('World', tileset, 0, 0);
+    const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);
+    const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
     worldLayer.setCollisionByProperty({ collides: true });
-    const aboveLayer = map.createLayer('Above Player', tileset, 0, 0);
+    const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
     /* By default, everything gets depth sorted on the screen in the order we created things.
      Here, we want the "Above Player" layer to sit on top of the player, so we explicitly give
      it a depth. Higher depths will sit on top of lower depth objects.
@@ -243,7 +244,7 @@ class CoveyGameScene extends Phaser.Scene {
 
     // Find all of the transporters, add them to the physics engine
     const transporters = map.createFromObjects('Objects',
-      { name: 'transporter' })
+      { name: 'transporter' }, 'sprite')
     this.physics.world.enable(transporters);
 
     // For each of the transporters (rectangle objects), we need to tweak their location on the scene
