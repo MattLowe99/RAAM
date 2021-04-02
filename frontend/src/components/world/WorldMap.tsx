@@ -38,7 +38,7 @@ class CoveyGameScene extends Phaser.Scene {
 
   private video: Video;
 
-  private map = MapSelection.Classroom;
+  private map = MapSelection.Standard;
 
   private emitMovement: (loc: UserLocation) => void;
 
