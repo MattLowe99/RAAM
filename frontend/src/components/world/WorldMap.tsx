@@ -243,14 +243,14 @@ class CoveyGameScene extends Phaser.Scene {
     /* Parameters are the name you gave the tileset in Tiled and then the key of the
      tileset image in Phaser's cache (i.e. the name you used in preload)
      */
-    let tileset: Phaser.Tilemaps.Tileset;
+    // let tileset: Phaser.Tilemaps.Tileset;
     // switch (this.map) {
     //   case MapSelection.Standard:
     //     tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
     //     console.log('Standard map');
     //     break;
       // case MapSelection.Conference:
-        tileset = map.addTilesetImage('conference-items', 'tiles');
+      const tileset = map.addTilesetImage('conference-items', 'tiles');
       //   break;
       // case MapSelection.Classroom:
       //   tileset = map.addTilesetImage('classroom-items', 'tiles');
