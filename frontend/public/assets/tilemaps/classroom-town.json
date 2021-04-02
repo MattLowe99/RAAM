@@ -3,7 +3,8 @@
     {
      "export":
         {
-         "format":"json"
+         "format":"json",
+         "target":"."
         }
     },
  "height":40,
@@ -90,11 +91,11 @@
         {
          "columns":16,
          "firstgid":1,
-         "image":"..\/tilesets\/conference-items.png",
+         "image":"..\/tilesets\/classroom-items.png",
          "imageheight":1792,
          "imagewidth":512,
          "margin":0,
-         "name":"conference-items",
+         "name":"classroom-items",
          "properties":[
                 {
                  "name":"collides",
