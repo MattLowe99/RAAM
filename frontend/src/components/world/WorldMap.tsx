@@ -58,8 +58,6 @@ class CoveyGameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
     this.load.atlas('misa-atlas', '/assets/atlas/misa-atlas.png', '/assets/atlas/misa-atlas.json');
     this.load.atlas('bido-atlas', '/assets/atlas/bido-atlas.png', '/assets/atlas/bido-atlas.json');
-
-    console.log(this.avatar);
     // if (this.mapSelection === MapSelection.Standard) {
     //     this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
     //     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
