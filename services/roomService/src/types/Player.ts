@@ -17,7 +17,10 @@ export default class Player {
   /** The player's avatar name */
   public readonly _avatar: string;
 
-  constructor(userName: string, avatar: string) {
+  /** Default avatar */
+  private readonly defaultAvatar = 'misa';
+
+  constructor(userName: string, avatar?: string) {
     this.location = {
       x: 0,
       y: 0,
@@ -26,7 +29,7 @@ export default class Player {
     };
     this._userName = userName;
     this._id = nanoid();
-    this._avatar = avatar;
+    this._avatar = avatar || this.defaultAvatar;
   }
 
   get userName(): string {
