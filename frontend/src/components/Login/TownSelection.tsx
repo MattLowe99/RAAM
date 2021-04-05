@@ -38,7 +38,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { connect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
-  const avatars = ['misa', 'lilo', 'nina', 'bido'];
+  const avatars = ['misa', 'bido'];
   const preview = `../../assets/${avatars[avatarIndex]}-preview.png`;
 
   const updateTownListings = useCallback(() => {
@@ -129,7 +129,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         isClosable: true,
         duration: null,
       })
-      await handleJoin(newTownInfo.coveyTownID, avatars[index]);
+      await handleJoin(newTownInfo.coveyTownID, avatars[avatarIndex]);
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
