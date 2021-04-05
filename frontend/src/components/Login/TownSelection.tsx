@@ -34,12 +34,9 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const [newTownIsPublic, setNewTownIsPublic] = useState<boolean>(true);
   const [townIDToJoin, setTownIDToJoin] = useState<string>('');
   const [currentPublicTowns, setCurrentPublicTowns] = useState<CoveyTownInfo[]>();
-  const [avatarIndex, setAvatarIndex] = useState<number>(0);
   const { connect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
-  const avatars = ['misa', 'bido'];
-  const preview = `../../assets/${avatars[avatarIndex]}-preview.png`;
 
   const updateTownListings = useCallback(() => {
     // console.log(apiClient);
@@ -58,7 +55,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     };
   }, [updateTownListings]);
 
-  const handleJoin = useCallback(async (coveyRoomID: string, avatar: string) => {
+  const handleJoin = useCallback(async (coveyRoomID: string) => {
     try {
       if (!userName || userName.length === 0) {
         toast({
@@ -76,7 +73,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         });
         return;
       }
-      const initData = await Video.setup(userName, coveyRoomID, avatar);
+      const initData = await Video.setup(userName, coveyRoomID);
 
       const loggedIn = await doLogin(initData);
       if (loggedIn) {
@@ -92,7 +89,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     }
   }, [doLogin, userName, connect, toast]);
 
-  const handleCreate = async (index: number) => {
+  const handleCreate = async () => {
     if (!userName || userName.length === 0) {
       toast({
         title: 'Unable to create town',
@@ -129,7 +126,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         isClosable: true,
         duration: null,
       })
-      await handleJoin(newTownInfo.coveyTownID, avatars[avatarIndex]);
+      await handleJoin(newTownInfo.coveyTownID);
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
@@ -138,22 +135,6 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       })
     }
   };
-
-
-  const handleAvatar = (increase: boolean) => {
-    if (increase) {
-      if (avatarIndex < avatars.length - 1) {
-        setAvatarIndex(avatarIndex + 1);
-      } else {
-        setAvatarIndex(0);
-      }
-    } else if (avatarIndex > 0) {
-        setAvatarIndex(avatarIndex - 1);
-    }
-    else {
-      setAvatarIndex(avatars.length - 1);
-    }
-  }
 
   return (
     <>
@@ -165,29 +146,9 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <FormControl>
               <FormLabel htmlFor="name">Name</FormLabel>
               <Input autoFocus name="name" placeholder="Your name"
-                value={userName}
-                onChange={event => setUserName(event.target.value)}
+                     value={userName}
+                     onChange={event => setUserName(event.target.value)}
               />
-            </FormControl>
-          </Box>
-          <Box p="4" borderWidth="1px" borderRadius="lg">
-            <Heading as="h2" size="lg">Customize your avatar</Heading>
-            <FormControl>
-              <Flex p="4">
-                <Box flex="1">
-                  <img src={preview} alt="avatar" />
-                </Box>
-                <Box flex="3"/>
-              </Flex>
-              <Flex p="4">
-                <Box flex="1">
-                  <Button data-testid='updateAvatar'
-                          onClick={() => handleAvatar(false)}>&#8592;</Button>
-                  <text>&nbsp;&nbsp;&nbsp;&nbsp;{avatarIndex + 1}/{avatars.length}&nbsp;&nbsp;&nbsp;&nbsp;</text>
-                  <Button data-testid='updateAvatar'
-                          onClick={() => handleAvatar(true)}>&#8594;</Button>
-                </Box>
-              </Flex>
             </FormControl>
           </Box>
           <Box borderWidth="1px" borderRadius="lg">
@@ -211,7 +172,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
               </FormControl>
             </Box>
               <Box>
-                <Button data-testid="newTownButton" onClick={() => handleCreate(avatarIndex)}>Create</Button>
+                <Button data-testid="newTownButton" onClick={handleCreate}>Create</Button>
               </Box>
             </Flex>
           </Box>
@@ -227,7 +188,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                        onChange={event => setTownIDToJoin(event.target.value)}/>
               </FormControl>
                 <Button data-testid='joinTownByIDButton'
-                        onClick={() => handleJoin(townIDToJoin, avatars[avatarIndex])}>Connect</Button>
+                        onClick={() => handleJoin(townIDToJoin)}>Connect</Button>
               </Flex>
 
             </Box>
@@ -242,7 +203,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                     <Tr key={town.coveyTownID}><Td role='cell'>{town.friendlyName}</Td><Td
                       role='cell'>{town.coveyTownID}</Td>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
-                        <Button onClick={() => handleJoin(town.coveyTownID, avatars[avatarIndex])}
+                        <Button onClick={() => handleJoin(town.coveyTownID)}
                                 disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
                   ))}
                 </Tbody>
