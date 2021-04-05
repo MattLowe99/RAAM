@@ -14,7 +14,10 @@ export default class Player {
   /** The player's username, which is not guaranteed to be unique within the town * */
   private readonly _userName: string;
 
-  constructor(userName: string) {
+  /** The player's avatar name */
+  public readonly _avatar: string;
+
+  constructor(userName: string, avatar: string) {
     this.location = {
       x: 0,
       y: 0,
@@ -23,6 +26,7 @@ export default class Player {
     };
     this._userName = userName;
     this._id = nanoid();
+    this._avatar = avatar;
   }
 
   get userName(): string {
@@ -31,6 +35,10 @@ export default class Player {
 
   get id(): string {
     return this._id;
+  }
+
+  get avatar(): string {
+    return this._avatar;
   }
 
   updateLocation(location: UserLocation): void {
