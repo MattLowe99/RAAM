@@ -106,11 +106,11 @@ export default class Video {
     return this.teardownPromise ?? Promise.resolve();
   }
 
-  public static async setup(username: string, coveyTownID: string, avatarName: string): Promise<TownJoinResponse> {
+  public static async setup(username: string, coveyTownID: string, avatarName?: string): Promise<TownJoinResponse> {
     let result = null;
 
     if (!Video.video) {
-      Video.video = new Video(username, coveyTownID, avatarName);
+      Video.video = new Video(username, coveyTownID, avatarName || 'misa');
     }
 
     try {
