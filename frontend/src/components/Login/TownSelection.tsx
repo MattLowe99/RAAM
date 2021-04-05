@@ -38,7 +38,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { connect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
-  const avatars = ['misa', 'bido'];
+  const avatars = ['misa', 'lilo', 'nina', 'bido'];
   const preview = `../../assets/${avatars[avatarIndex]}-preview.png`;
 
   const updateTownListings = useCallback(() => {
