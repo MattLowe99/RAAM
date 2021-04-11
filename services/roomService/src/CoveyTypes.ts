@@ -5,5 +5,12 @@ export type UserLocation = {
   rotation: Direction;
   moving: boolean;
 };
-export type CoveyTownList = { friendlyName: string; coveyTownID: string; currentOccupancy: number; maximumOccupancy: number }[];
+
+enum MapSelection {
+  Standard,
+  Conference,
+  Classroom,
+}
+// export type CoveyTownList = { friendlyName: string; coveyTownID: string; currentOccupancy: number; maximumOccupancy: number }[];
+export type CoveyTownList = { friendlyName: string; coveyTownID: string; currentOccupancy: number; maximumOccupancy: number, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean }[];
 
