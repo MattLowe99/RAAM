@@ -5,12 +5,13 @@ import { nanoid } from 'nanoid';
 import assert from 'assert';
 import { AddressInfo } from 'net';
 
-import TownsServiceClient, { TownListResponse } from './TownsServiceClient';
+import TownsServiceClient, { MapSelection, TownListResponse } from './TownsServiceClient';
 import addTownRoutes from '../router/towns';
 
 type TestTownData = {
   friendlyName: string, coveyTownID: string,
   isPubliclyListed: boolean, townUpdatePassword: string
+  mapID: MapSelection, enableVideo: boolean, enableProximity: boolean
 };
 
 function expectTownListMatches(towns: TownListResponse, town: TestTownData) {
@@ -21,6 +22,12 @@ function expectTownListMatches(towns: TownListResponse, town: TestTownData) {
     assert(matching);
     expect(matching.friendlyName)
       .toBe(town.friendlyName);
+    expect(matching.mapID)
+      .toBe(town.mapID);
+    expect(matching.enableVideo)
+      .toBe(town.enableVideo);
+    expect(matching.enableProximity)
+      .toBe(town.enableProximity);
   } else {
     expect(matching)
       .toBeUndefined();
@@ -31,18 +38,24 @@ describe('TownsServiceAPIREST', () => {
   let server: http.Server;
   let apiClient: TownsServiceClient;
 
-  async function createTownForTesting(friendlyNameToUse?: string, isPublic = false): Promise<TestTownData> {
+  async function createTownForTesting(mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, friendlyNameToUse?: string, isPublic = false): Promise<TestTownData> {
     const friendlyName = friendlyNameToUse !== undefined ? friendlyNameToUse :
       `${isPublic ? 'Public' : 'Private'}TestingTown=${nanoid()}`;
     const ret = await apiClient.createTown({
       friendlyName,
       isPubliclyListed: isPublic,
+      mapID,
+      enableVideo,
+      enableProximity,
     });
     return {
       friendlyName,
       isPubliclyListed: isPublic,
       coveyTownID: ret.coveyTownID,
       townUpdatePassword: ret.coveyTownPassword,
+      mapID,
+      enableVideo,
+      enableProximity,
     };
   }
 
@@ -62,15 +75,15 @@ describe('TownsServiceAPIREST', () => {
   });
   describe('CoveyTownCreateAPI', () => {
     it('Allows for multiple towns with the same friendlyName', async () => {
-      const firstTown = await createTownForTesting();
-      const secondTown = await createTownForTesting(firstTown.friendlyName);
+      const firstTown = await createTownForTesting(MapSelection.Standard, true, true);
+      const secondTown = await createTownForTesting(MapSelection.Standard, true, true, firstTown.friendlyName);
       expect(firstTown.coveyTownID)
         .not
         .toBe(secondTown.coveyTownID);
     });
     it('Prohibits a blank friendlyName', async () => {
       try {
-        await createTownForTesting('');
+        await createTownForTesting(MapSelection.Standard, true, true, '');
         fail('createTown should throw an error if friendly name is empty string');
       } catch (err) {
         // OK
@@ -80,10 +93,10 @@ describe('TownsServiceAPIREST', () => {
 
   describe('CoveyTownListAPI', () => {
     it('Lists public towns, but not private towns', async () => {
-      const pubTown1 = await createTownForTesting(undefined, true);
-      const privTown1 = await createTownForTesting(undefined, false);
-      const pubTown2 = await createTownForTesting(undefined, true);
-      const privTown2 = await createTownForTesting(undefined, false);
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
+      const privTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, false);
+      const pubTown2 = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
+      const privTown2 = await createTownForTesting(MapSelection.Standard, true, true, undefined, false);
 
       const towns = await apiClient.listTowns();
       expectTownListMatches(towns, pubTown1);
@@ -92,11 +105,37 @@ describe('TownsServiceAPIREST', () => {
       expectTownListMatches(towns, privTown2);
 
     });
+    it('Lists towns with different mapID', async () => {
+      const mapID1 = MapSelection.Conference;
+      const mapID2 = MapSelection.Classroom;
+      const pubTown1 = await createTownForTesting(mapID1, true, true, undefined, true);
+      const pubTown2 = await createTownForTesting(mapID2, true, true, undefined, true);
+
+      const towns = await apiClient.listTowns();
+      expectTownListMatches(towns, pubTown1);
+      expectTownListMatches(towns, pubTown2);
+    });
+    it('Lists towns with video disabled', async () => {
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, false, true, undefined, true);
+      const pubTown2 = await createTownForTesting(MapSelection.Standard, false, true, undefined, true);
+
+      const towns = await apiClient.listTowns();
+      expectTownListMatches(towns, pubTown1);
+      expectTownListMatches(towns, pubTown2);
+    });    
+    it('Lists towns with proximity disabled', async () => {
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, true, false, undefined, true);
+      const pubTown2 = await createTownForTesting(MapSelection.Standard, true, false, undefined, true);
+
+      const towns = await apiClient.listTowns();
+      expectTownListMatches(towns, pubTown1);
+      expectTownListMatches(towns, pubTown2);
+    });    
     it('Allows for multiple towns with the same friendlyName', async () => {
-      const pubTown1 = await createTownForTesting(undefined, true);
-      const privTown1 = await createTownForTesting(pubTown1.friendlyName, false);
-      const pubTown2 = await createTownForTesting(pubTown1.friendlyName, true);
-      const privTown2 = await createTownForTesting(pubTown1.friendlyName, false);
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
+      const privTown1 = await createTownForTesting(MapSelection.Standard, true, true, pubTown1.friendlyName, false);
+      const pubTown2 = await createTownForTesting(MapSelection.Standard, true, true, pubTown1.friendlyName, true);
+      const privTown2 = await createTownForTesting(MapSelection.Standard, true, true, pubTown1.friendlyName, false);
 
       const towns = await apiClient.listTowns();
       expectTownListMatches(towns, pubTown1);
@@ -108,7 +147,7 @@ describe('TownsServiceAPIREST', () => {
 
   describe('CoveyTownDeleteAPI', () => {
     it('Throws an error if the password is invalid', async () => {
-      const { coveyTownID } = await createTownForTesting(undefined, true);
+      const { coveyTownID } = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
       try {
         await apiClient.deleteTown({
           coveyTownID,
@@ -120,7 +159,7 @@ describe('TownsServiceAPIREST', () => {
       }
     });
     it('Throws an error if the townID is invalid', async () => {
-      const { townUpdatePassword } = await createTownForTesting(undefined, true);
+      const { townUpdatePassword } = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
       try {
         await apiClient.deleteTown({
           coveyTownID: nanoid(),
@@ -132,7 +171,7 @@ describe('TownsServiceAPIREST', () => {
       }
     });
     it('Deletes a town if given a valid password and town, no longer allowing it to be joined or listed', async () => {
-      const { coveyTownID, townUpdatePassword } = await createTownForTesting(undefined, true);
+      const { coveyTownID, townUpdatePassword } = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
       await apiClient.deleteTown({
         coveyTownID,
         coveyTownPassword: townUpdatePassword,
@@ -141,6 +180,7 @@ describe('TownsServiceAPIREST', () => {
         await apiClient.joinTown({
           userName: nanoid(),
           coveyTownID,
+          // spriteID: nanoid(),
         });
         fail('Expected joinTown to throw an error');
       } catch (e) {
@@ -154,7 +194,7 @@ describe('TownsServiceAPIREST', () => {
   });
   describe('CoveyTownUpdateAPI', () => {
     it('Checks the password before updating any values', async () => {
-      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
       expectTownListMatches(await apiClient.listTowns(), pubTown1);
       try {
         await apiClient.updateTown({
@@ -174,7 +214,7 @@ describe('TownsServiceAPIREST', () => {
       expectTownListMatches(await apiClient.listTowns(), pubTown1);
     });
     it('Updates the friendlyName and visbility as requested', async () => {
-      const pubTown1 = await createTownForTesting(undefined, false);
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, false);
       expectTownListMatches(await apiClient.listTowns(), pubTown1);
       await apiClient.updateTown({
         coveyTownID: pubTown1.coveyTownID,
@@ -187,7 +227,7 @@ describe('TownsServiceAPIREST', () => {
       expectTownListMatches(await apiClient.listTowns(), pubTown1);
     });
     it('Does not update the visibility if visibility is undefined', async () => {
-      const pubTown1 = await createTownForTesting(undefined, true);
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
       expectTownListMatches(await apiClient.listTowns(), pubTown1);
       await apiClient.updateTown({
         coveyTownID: pubTown1.coveyTownID,
@@ -201,11 +241,12 @@ describe('TownsServiceAPIREST', () => {
 
   describe('CoveyMemberAPI', () => {
     it('Throws an error if the town does not exist', async () => {
-      await createTownForTesting(undefined, true);
+      await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
       try {
         await apiClient.joinTown({
           userName: nanoid(),
           coveyTownID: nanoid(),
+          // spriteID: nanoid(),
         });
         fail('Expected an error to be thrown by joinTown but none thrown');
       } catch (err) {
@@ -215,11 +256,12 @@ describe('TownsServiceAPIREST', () => {
       }
     });
     it('Admits a user to a valid public or private town', async () => {
-      const pubTown1 = await createTownForTesting(undefined, true);
-      const privTown1 = await createTownForTesting(undefined, false);
+      const pubTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, true);
+      const privTown1 = await createTownForTesting(MapSelection.Standard, true, true, undefined, false);
       const res = await apiClient.joinTown({
         userName: nanoid(),
         coveyTownID: pubTown1.coveyTownID,
+        // spriteID: nanoid(),
       });
       expect(res.coveySessionToken)
         .toBeDefined();
@@ -229,6 +271,7 @@ describe('TownsServiceAPIREST', () => {
       const res2 = await apiClient.joinTown({
         userName: nanoid(),
         coveyTownID: privTown1.coveyTownID,
+        // spriteID: nanoid(),
       });
       expect(res2.coveySessionToken)
         .toBeDefined();
