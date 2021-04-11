@@ -12,6 +12,10 @@ The frontend implements video chat using the [Twilio Programmable Video](https:/
 
 A backend service (in the `services/roomService` directory) implements the application logic: tracking which "towns" are available to be joined, and the state of each of those towns.
 
+Our project adds features allowing users to select different town maps and avatars. We also have a feature that disables proximity, allowing everyone in the town to hear one another no matter how far they are. Additionally, we include the ability to disable video streaming to save bandwidth.
+
+Our implementation does not alter the app setup and start procedure.
+
 ## Running this app locally
 
 Running the application locally entails running both the backend service and a frontend.
