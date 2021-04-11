@@ -495,7 +495,6 @@ export default function WorldMap(): JSX.Element {
 
     const game = new Phaser.Game(config);
     if (video) {
-w
       const newGameScene = new CoveyGameScene(MapSelection.Classroom, video, emitMovement);
       setGameScene(newGameScene);
       game.scene.add('coveyBoard', newGameScene, true);
