@@ -7,7 +7,8 @@ import useCoveyAppState from '../../hooks/useCoveyAppState';
 enum MapSelection {
   Standard,
   Conference,
-  Classroom
+  Classroom,
+  Party
 }
 
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
@@ -65,6 +66,10 @@ class CoveyGameScene extends Phaser.Scene {
       case MapSelection.Classroom:
         this.load.image('tiles', '/assets/tilesets/classroom-items.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town.json');
+        break;
+      case MapSelection.Party:
+        this.load.image('tiles', '/assets/tilesets/party-items.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/party-town.json');
         break;
       default:
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
@@ -256,6 +261,9 @@ class CoveyGameScene extends Phaser.Scene {
         break;
       case MapSelection.Classroom:
         tileset = map.addTilesetImage('classroom-items', 'tiles');
+        break;
+      case MapSelection.Party:
+        tileset = map.addTilesetImage('party-items', 'tiles');
         break;
       default:
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
