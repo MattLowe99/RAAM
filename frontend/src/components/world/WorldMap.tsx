@@ -3,21 +3,26 @@ import Phaser from 'phaser';
 import Player, { UserLocation } from '../../classes/Player';
 import Video from '../../classes/Video/Video';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+import { MapSelection } from '../../CoveyTypes';
 
+/*
 enum MapSelection {
   Standard,
   Conference,
-  Classroom,
-  Party
+  Classroom
 }
+*/
 
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
 class CoveyGameScene extends Phaser.Scene {
+
   private player?: {
     sprite: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, label: Phaser.GameObjects.Text
   };
 
   private id?: string;
+
+  private avatar?: string;
 
   private players: Player[] = [];
 
@@ -44,8 +49,9 @@ class CoveyGameScene extends Phaser.Scene {
 
   constructor(mapSelection: MapSelection, video: Video, emitMovement: (loc: UserLocation) => void) {
     super('PlayGame');
-    this.mapSelection = mapSelection;
     this.video = video;
+    this.avatar = this.video.avatarName;
+    this.mapSelection = mapSelection;
     this.emitMovement = emitMovement;
   }
 
@@ -53,23 +59,27 @@ class CoveyGameScene extends Phaser.Scene {
     // this.load.image("logo", logoImg);
     // this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
     // this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
-    // this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
-        switch (this.mapSelection) {
+    this.load.atlas('misa-atlas', '/assets/atlas/misa-atlas.png', '/assets/atlas/misa-atlas.json');
+    this.load.atlas('bido-atlas', '/assets/atlas/bido-atlas.png', '/assets/atlas/bido-atlas.json');
+    // if (this.mapSelection === MapSelection.Standard) {
+    //     this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+    //     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+    // } else if (this.mapSelection === MapSelection.Conference) {
+    //     this.load.image('tiles', '/assets/tilesets/conference-items.png');
+    //     this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
+    // }
+    switch (this.mapSelection) {
       case MapSelection.Standard:
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
         break;
       case MapSelection.Conference:
         this.load.image('tiles', '/assets/tilesets/conference-items.png');
-        this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town1.json');
         break;
       case MapSelection.Classroom:
         this.load.image('tiles', '/assets/tilesets/classroom-items.png');
-        this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town.json');
-        break;
-      case MapSelection.Party:
-        this.load.image('tiles', '/assets/tilesets/party-items.png');
-        this.load.tilemapTiledJSON('map', '/assets/tilemaps/party-town.json');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town1.json');
         break;
       default:
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
@@ -79,13 +89,13 @@ class CoveyGameScene extends Phaser.Scene {
     this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
   }
 
-
   updatePlayersLocations(players: Player[]) {
     if (!this.ready) {
       this.players = players;
       return;
     }
     players.forEach((p) => {
+      this.updateAvatar(p);
       this.updatePlayerLocation(p);
     });
     // Remove disconnected players from board
@@ -108,6 +118,15 @@ class CoveyGameScene extends Phaser.Scene {
     }
   }
 
+  updateAvatar(player: Player) {
+    const myPlayer = this.players.find((p) => p.id === player.id);
+    if (myPlayer) {
+      this.avatar = myPlayer.avatar;
+    } else {
+      this.avatar = 'misa';
+    }
+  }
+
   updatePlayerLocation(player: Player) {
     let myPlayer = this.players.find((p) => p.id === player.id);
     if (!myPlayer) {
@@ -120,7 +139,7 @@ class CoveyGameScene extends Phaser.Scene {
           y: 0,
         };
       }
-      myPlayer = new Player(player.id, player.userName, location);
+      myPlayer = new Player(player.id, player.userName, location, player.avatar);
       this.players.push(myPlayer);
     }
     if (this.id !== myPlayer.id && this.physics && player.location) {
@@ -129,7 +148,7 @@ class CoveyGameScene extends Phaser.Scene {
         sprite = this.physics.add
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore - JB todo
-          .sprite(0, 0, 'atlas', 'misa-front')
+          .sprite(0, 0, `${this.avatar}-atlas`, `${this.avatar}-front`)
           .setSize(30, 40)
           .setOffset(0, 24);
         const label = this.add.text(0, 0, myPlayer.userName, {
@@ -146,10 +165,10 @@ class CoveyGameScene extends Phaser.Scene {
       myPlayer.label?.setX(player.location.x);
       myPlayer.label?.setY(player.location.y - 20);
       if (player.location.moving) {
-        sprite.anims.play(`misa-${player.location.rotation}-walk`, true);
+        sprite.anims.play(`${this.avatar}-${player.location.rotation}-walk`, true);
       } else {
         sprite.anims.stop();
-        sprite.setTexture('atlas', `misa-${player.location.rotation}`);
+        sprite.setTexture(`${this.avatar}-atlas`, `${player.avatar}-${player.location.rotation}`);
       }
     }
   }
@@ -186,31 +205,31 @@ class CoveyGameScene extends Phaser.Scene {
       switch (primaryDirection) {
         case 'left':
           body.setVelocityX(-speed);
-          this.player.sprite.anims.play('misa-left-walk', true);
+          this.player.sprite.anims.play(`${this.avatar}-left-walk`, true);
           break;
         case 'right':
           body.setVelocityX(speed);
-          this.player.sprite.anims.play('misa-right-walk', true);
+          this.player.sprite.anims.play(`${this.avatar}-right-walk`, true);
           break;
         case 'front':
           body.setVelocityY(speed);
-          this.player.sprite.anims.play('misa-front-walk', true);
+          this.player.sprite.anims.play(`${this.avatar}-front-walk`, true);
           break;
         case 'back':
           body.setVelocityY(-speed);
-          this.player.sprite.anims.play('misa-back-walk', true);
+          this.player.sprite.anims.play(`${this.avatar}-back-walk`, true);
           break;
         default:
           // Not moving
           this.player.sprite.anims.stop();
           // If we were moving, pick and idle frame to use
           if (prevVelocity.x < 0) {
-            this.player.sprite.setTexture('atlas', 'misa-left');
+            this.player.sprite.setTexture(`${this.avatar}-atlas`, `${this.avatar}-left`);
           } else if (prevVelocity.x > 0) {
-            this.player.sprite.setTexture('atlas', 'misa-right');
+            this.player.sprite.setTexture(`${this.avatar}-atlas`, `${this.avatar}-right`);
           } else if (prevVelocity.y < 0) {
-            this.player.sprite.setTexture('atlas', 'misa-back');
-          } else if (prevVelocity.y > 0) this.player.sprite.setTexture('atlas', 'misa-front');
+            this.player.sprite.setTexture(`${this.avatar}-atlas`, `${this.avatar}-back`);
+          } else if (prevVelocity.y > 0) this.player.sprite.setTexture(`${this.avatar}-atlas`, `${this.avatar}-front`);
           break;
       }
 
@@ -246,12 +265,13 @@ class CoveyGameScene extends Phaser.Scene {
   create() {
     const map = this.make.tilemap({ key: 'map' });
 
-        /* Parameters are the name you gave the tileset in Tiled and then the key of the
+    /* Parameters are the name you gave the tileset in Tiled and then the key of the
      tileset image in Phaser's cache (i.e. the name you used in preload)
      */
-    let tileset: Phaser.Tilemaps.Tileset;
+    // let tileset: Phaser.Tilemaps.Tileset;
     // Need to assign a default value
-    tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    const tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    /*
     switch (this.mapSelection) {
       case MapSelection.Standard:
       tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
@@ -261,19 +281,19 @@ class CoveyGameScene extends Phaser.Scene {
         break;
       case MapSelection.Classroom:
         tileset = map.addTilesetImage('classroom-items', 'tiles');
-        break;
-      case MapSelection.Party:
-        tileset = map.addTilesetImage('party-items', 'tiles');
+        // console.log('Classroom map');
         break;
       default:
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        // console.log('Default map');
         break;
     }
-
+    */
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const belowLayer = map.createLayer('Below Player', tileset, 0, 0);
+
     const worldLayer = map.createLayer('World', tileset, 0, 0);
     worldLayer.setCollisionByProperty({ collides: true });
     const aboveLayer = map.createLayer('Above Player', tileset, 0, 0);
@@ -340,7 +360,7 @@ class CoveyGameScene extends Phaser.Scene {
     // has a bit of whitespace, so I'm using setSize & setOffset to control the size of the
     // player's body.
     const sprite = this.physics.add
-      .sprite(spawnPoint.x, spawnPoint.y, 'atlas', 'misa-front')
+      .sprite(spawnPoint.x, spawnPoint.y, `${this.avatar}-atlas`, `${this.avatar}-front`)
       .setSize(30, 40)
       .setOffset(0, 24);
     const label = this.add.text(spawnPoint.x, spawnPoint.y - 20, '(You)', {
@@ -396,9 +416,9 @@ class CoveyGameScene extends Phaser.Scene {
     // animation manager so any sprite can access them.
     const { anims } = this;
     anims.create({
-      key: 'misa-left-walk',
-      frames: anims.generateFrameNames('atlas', {
-        prefix: 'misa-left-walk.',
+      key: `${this.avatar}-left-walk`,
+      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
+        prefix: `${this.avatar}-left-walk.`,
         start: 0,
         end: 3,
         zeroPad: 3,
@@ -407,9 +427,9 @@ class CoveyGameScene extends Phaser.Scene {
       repeat: -1,
     });
     anims.create({
-      key: 'misa-right-walk',
-      frames: anims.generateFrameNames('atlas', {
-        prefix: 'misa-right-walk.',
+      key: `${this.avatar}-right-walk`,
+      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
+        prefix: `${this.avatar}-right-walk.`,
         start: 0,
         end: 3,
         zeroPad: 3,
@@ -418,9 +438,9 @@ class CoveyGameScene extends Phaser.Scene {
       repeat: -1,
     });
     anims.create({
-      key: 'misa-front-walk',
-      frames: anims.generateFrameNames('atlas', {
-        prefix: 'misa-front-walk.',
+      key: `${this.avatar}-front-walk`,
+      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
+        prefix: `${this.avatar}-front-walk.`,
         start: 0,
         end: 3,
         zeroPad: 3,
@@ -429,9 +449,9 @@ class CoveyGameScene extends Phaser.Scene {
       repeat: -1,
     });
     anims.create({
-      key: 'misa-back-walk',
-      frames: anims.generateFrameNames('atlas', {
-        prefix: 'misa-back-walk.',
+      key: `${this.avatar}-back-walk`,
+      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
+        prefix: `${this.avatar}-back-walk.`,
         start: 0,
         end: 3,
         zeroPad: 3,
@@ -476,13 +496,17 @@ class CoveyGameScene extends Phaser.Scene {
 
   resume() {
     this.paused = false;
-    this.input.keyboard.addCapture(this.previouslyCapturedKeys);
+    if(Video.instance()){
+      // If the game is also in process of being torn down, the keyboard could be undefined
+      this.input.keyboard.addCapture(this.previouslyCapturedKeys);
+    }
     this.previouslyCapturedKeys = [];
   }
 }
 
-export default function WorldMap(): JSX.Element {
-  const video = Video.instance();
+// export default function WorldMap(): JSX.Element {
+export default function WorldMap(props: {mid: MapSelection}): JSX.Element {
+    const video = Video.instance();
   const {
     emitMovement, players,
   } = useCoveyAppState();
@@ -503,7 +527,10 @@ export default function WorldMap(): JSX.Element {
 
     const game = new Phaser.Game(config);
     if (video) {
-      const newGameScene = new CoveyGameScene(MapSelection.Conference, video, emitMovement);
+      // Change the MapSelection to change which map is displayed.
+      const newGameScene = new CoveyGameScene(props.mid, video, emitMovement);
+      // const newGameScene = new CoveyGameScene(MapSelection.Standard, video, emitMovement);
+      // const newGameScene = new CoveyGameScene(MapSelection.Conference, video, emitMovement);
       setGameScene(newGameScene);
       game.scene.add('coveyBoard', newGameScene, true);
       video.pauseGame = () => {
@@ -516,7 +543,7 @@ export default function WorldMap(): JSX.Element {
     return () => {
       game.destroy(true);
     };
-  }, [video, emitMovement]);
+  }, [video, emitMovement, props]);
 
   const deepPlayers = JSON.stringify(players);
   useEffect(() => {
