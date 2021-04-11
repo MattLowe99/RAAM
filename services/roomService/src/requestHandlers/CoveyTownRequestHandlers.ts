@@ -4,6 +4,7 @@ import Player from '../types/Player';
 import { CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
+import { MapSelection } from '../client/TownsServiceClient';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -11,6 +12,8 @@ import CoveyTownsStore from '../lib/CoveyTownsStore';
 export interface TownJoinRequest {
   /** userName of the player that would like to join * */
   userName: string;
+  /** avatarName of the avatar that would the player like to user * */
+  avatarName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
 }
@@ -34,6 +37,12 @@ export interface TownJoinResponse {
   friendlyName: string;
   /** Is this a private town? * */
   isPubliclyListed: boolean;
+  /** The map ID of this town  */
+  mapID: MapSelection;
+  /** enable video of this town */
+  enableVideo: boolean;
+  /** enable proximity of this town */
+  enableProximity: boolean;
 }
 
 /**
@@ -42,6 +51,9 @@ export interface TownJoinResponse {
 export interface TownCreateRequest {
   friendlyName: string;
   isPubliclyListed: boolean;
+  mapID: MapSelection;
+  enableVideo: boolean;
+  enableProximity: boolean;
 }
 
 /**
@@ -77,6 +89,9 @@ export interface TownUpdateRequest {
   coveyTownPassword: string;
   friendlyName?: string;
   isPubliclyListed?: boolean;
+  mapID?: MapSelection;
+  enableVideo?: boolean;
+  enableProximity?: boolean;
 }
 
 /**
@@ -106,7 +121,7 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       message: 'Error: No such town',
     };
   }
-  const newPlayer = new Player(requestData.userName);
+  const newPlayer = new Player(requestData.userName, requestData.avatarName);
   const newSession = await coveyTownController.addPlayer(newPlayer);
   assert(newSession.videoToken);
   return {
@@ -118,6 +133,9 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       currentPlayers: coveyTownController.players,
       friendlyName: coveyTownController.friendlyName,
       isPubliclyListed: coveyTownController.isPubliclyListed,
+      mapID: coveyTownController.mapID,
+      enableVideo: coveyTownController.enableVideo,
+      enableProximity: coveyTownController.enableProximity,
     },
   };
 }
@@ -138,7 +156,8 @@ export async function townCreateHandler(requestData: TownCreateRequest): Promise
       message: 'FriendlyName must be specified',
     };
   }
-  const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed);
+  // const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed);
+  const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed, requestData.mapID, requestData.enableVideo, requestData.enableProximity);
   return {
     isOK: true,
     response: {
@@ -160,7 +179,8 @@ export async function townDeleteHandler(requestData: TownDeleteRequest): Promise
 
 export async function townUpdateHandler(requestData: TownUpdateRequest): Promise<ResponseEnvelope<Record<string, null>>> {
   const townsStore = CoveyTownsStore.getInstance();
-  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed);
+  // const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed);
+  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed, requestData.mapID, requestData.enableVideo, requestData.enableProximity);
   return {
     isOK: success,
     response: {},
