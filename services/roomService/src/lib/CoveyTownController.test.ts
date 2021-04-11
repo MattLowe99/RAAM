@@ -10,6 +10,7 @@ import PlayerSession from '../types/PlayerSession';
 import {townSubscriptionHandler} from '../requestHandlers/CoveyTownRequestHandlers';
 import CoveyTownsStore from './CoveyTownsStore';
 import * as TestUtils from '../client/TestUtils';
+import { MapSelection } from '../client/TownsServiceClient';
 
 jest.mock('./TwilioVideo');
 
@@ -35,16 +36,41 @@ describe('CoveyTownController', () => {
   });
   it('constructor should set the friendlyName property', () => { // Included in handout
     const townName = `FriendlyNameTest-${nanoid()}`;
-    const townController = new CoveyTownController(townName, false);
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
     expect(townController.friendlyName)
       .toBe(townName);
   });
+  it('constructor should set the mapID property', () => { // Included in handout
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townMapID = MapSelection.Standard;
+    const townController = new CoveyTownController(townName, false, townMapID, true, true);
+    expect(townController.friendlyName)
+      .toBe(townName);
+    expect(townController.mapID)
+      .toBe(townMapID);  
+  });
+  it('constructor should set the enableVideo property', () => { // Included in handout
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
+    expect(townController.friendlyName)
+      .toBe(townName);
+    expect(townController.enableVideo)
+      .toBe(true);
+  });    
+  it('constructor should set the enableProximity property', () => { // Included in handout
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
+    expect(townController.friendlyName)
+      .toBe(townName);
+    expect(townController.enableProximity)
+      .toBe(true);
+  });    
   describe('addPlayer', () => { // Included in handout
     it('should use the coveyTownID and player ID properties when requesting a video token',
       async () => {
         const townName = `FriendlyNameTest-${nanoid()}`;
-        const townController = new CoveyTownController(townName, false);
-        const newPlayerSession = await townController.addPlayer(new Player(nanoid()));
+        const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
+        const newPlayerSession = await townController.addPlayer(new Player(nanoid(), '1'));
         expect(mockGetTokenForTown).toBeCalledTimes(1);
         expect(mockGetTokenForTown).toBeCalledWith(townController.coveyTownID, newPlayerSession.player.id);
       });
@@ -56,11 +82,11 @@ describe('CoveyTownController', () => {
       mock<CoveyTownListener>()];
     beforeEach(() => {
       const townName = `town listeners and events tests ${nanoid()}`;
-      testingTown = new CoveyTownController(townName, false);
+      testingTown = new CoveyTownController(townName, false, MapSelection.Standard, false, false);
       mockListeners.forEach(mockReset);
     });
     it('should notify added listeners of player movement when updatePlayerLocation is called', async () => {
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
       await testingTown.addPlayer(player);
       const newLocation = generateTestLocation();
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
@@ -68,7 +94,7 @@ describe('CoveyTownController', () => {
       mockListeners.forEach(listener => expect(listener.onPlayerMoved).toBeCalledWith(player));
     });
     it('should notify added listeners of player disconnections when destroySession is called', async () => {
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
       const session = await testingTown.addPlayer(player);
 
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
@@ -78,13 +104,13 @@ describe('CoveyTownController', () => {
     it('should notify added listeners of new players when addPlayer is called', async () => {
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
 
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
       await testingTown.addPlayer(player);
       mockListeners.forEach(listener => expect(listener.onPlayerJoined).toBeCalledWith(player));
 
     });
     it('should notify added listeners that the town is destroyed when disconnectAllPlayers is called', async () => {
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
       await testingTown.addPlayer(player);
 
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
@@ -93,7 +119,7 @@ describe('CoveyTownController', () => {
 
     });
     it('should not notify removed listeners of player movement when updatePlayerLocation is called', async () => {
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
       await testingTown.addPlayer(player);
 
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
@@ -104,7 +130,7 @@ describe('CoveyTownController', () => {
       expect(listenerRemoved.onPlayerMoved).not.toBeCalled();
     });
     it('should not notify removed listeners of player disconnections when destroySession is called', async () => {
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
       const session = await testingTown.addPlayer(player);
 
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
@@ -115,7 +141,7 @@ describe('CoveyTownController', () => {
 
     });
     it('should not notify removed listeners of new players when addPlayer is called', async () => {
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
 
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
       const listenerRemoved = mockListeners[1];
@@ -126,7 +152,7 @@ describe('CoveyTownController', () => {
     });
 
     it('should not notify removed listeners that the town is destroyed when disconnectAllPlayers is called', async () => {
-      const player = new Player('test player');
+      const player = new Player('test player', nanoid());
       await testingTown.addPlayer(player);
 
       mockListeners.forEach(listener => testingTown.addTownListener(listener));
@@ -144,9 +170,9 @@ describe('CoveyTownController', () => {
     let session: PlayerSession;
     beforeEach(async () => {
       const townName = `connectPlayerSocket tests ${nanoid()}`;
-      testingTown = CoveyTownsStore.getInstance().createTown(townName, false);
+      testingTown = CoveyTownsStore.getInstance().createTown(townName, false, MapSelection.Standard, true, true);
       mockReset(mockSocket);
-      player = new Player('test player');
+      player = new Player('test player', nanoid());
       session = await testingTown.addPlayer(player);
     });
     it('should reject connections with invalid town IDs by calling disconnect', async () => {
@@ -195,7 +221,7 @@ describe('CoveyTownController', () => {
           const disconnectHandler = mockSocket.on.mock.calls.find(call => call[0] === 'disconnect');
           if (disconnectHandler && disconnectHandler[1]) {
             disconnectHandler[1]();
-            const newPlayer = new Player('should not be notified');
+            const newPlayer = new Player('should not be notified', nanoid());
             await testingTown.addPlayer(newPlayer);
             expect(mockSocket.emit).not.toHaveBeenCalledWith('newPlayer', newPlayer);
           } else {
