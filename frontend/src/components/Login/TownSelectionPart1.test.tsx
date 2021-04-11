@@ -4,7 +4,7 @@ import '@testing-library/jest-dom'
 import { ChakraProvider } from '@chakra-ui/react'
 import { render, waitFor, within } from '@testing-library/react'
 import { nanoid } from 'nanoid';
-import TownsServiceClient from '../../classes/TownsServiceClient';
+import TownsServiceClient, { MapSelection } from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
@@ -38,36 +38,54 @@ const listTowns = (suffix: string) => Promise.resolve({
     {
       friendlyName: `town1${suffix}`,
       coveyTownID: `1${suffix}`,
+      mapID: MapSelection.Standard,
+      enableVideo: true,
+      enableProximity: true,
       currentOccupancy: 0,
       maximumOccupancy: 1,
     },
     {
       friendlyName: `town2${suffix}`,
       coveyTownID: `2${suffix}`,
+      mapID: MapSelection.Standard,
+      enableVideo: true,
+      enableProximity: true,
       currentOccupancy: 2,
       maximumOccupancy: 10,
     },
     {
       friendlyName: `town3${suffix}`,
       coveyTownID: `3${suffix}`,
+      mapID: MapSelection.Standard,
+      enableVideo: true,
+      enableProximity: true,
       currentOccupancy: 1,
       maximumOccupancy: 1,
     },
     {
       friendlyName: `town4${suffix}`,
       coveyTownID: `4${suffix}`,
+      mapID: MapSelection.Standard,
+      enableVideo: true,
+      enableProximity: true,
       currentOccupancy: 8,
       maximumOccupancy: 8,
     },
     {
       friendlyName: `town5${suffix}`,
       coveyTownID: `5${suffix}`,
+      mapID: MapSelection.Standard,
+      enableVideo: true,
+      enableProximity: true,
       currentOccupancy: 9,
       maximumOccupancy: 5,
     },
     {
       friendlyName: `town6${suffix}`,
       coveyTownID: `6${suffix}`,
+      mapID: MapSelection.Standard,
+      enableVideo: true,
+      enableProximity: true,
       currentOccupancy: 99,
       maximumOccupancy: 100,
     },
@@ -84,6 +102,9 @@ function wrappedTownSelection() {
     nearbyPlayers: { nearbyPlayers: [] },
     players: [],
     myPlayerID: '',
+    mapID: MapSelection.Standard,
+    enableVideo: true,
+    enableProximity: true,
     currentTownID: '',
     currentTownIsPubliclyListed: false,
     currentTownFriendlyName: '',
@@ -266,16 +287,25 @@ describe('Part 1 - Public room listing', () => {
       if (row) {
         const cells = within(row)
           .queryAllByRole('cell');
-        // Cell order: friendlyName, TownID, occupancy/join + button
+        // Cell order: friendlyName, TownID, mapID, Video, Proximity, occupancy/join + button
         expect(cells.length)
-          .toBe(3);
+          .toBe(6);
         expect(within(cells[0])
           .queryByText(town.friendlyName))
           .toBeInTheDocument();
         expect(within(cells[1])
           .queryByText(town.coveyTownID))
           .toBeInTheDocument();
-        expect(within(cells[2])
+          expect(within(cells[2])
+          .queryByText(town.mapID))
+          .toBeInTheDocument();
+          expect(within(cells[3])
+          .queryByText(town.enableVideo.toString()))
+          .toBeInTheDocument();
+          expect(within(cells[4])
+          .queryByText(town.enableProximity.toString()))
+          .toBeInTheDocument();
+        expect(within(cells[5])
           .queryByText(`${town.currentOccupancy}/${town.maximumOccupancy}`))
           .toBeInTheDocument();
       } else {
