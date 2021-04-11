@@ -2,6 +2,11 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
 
+export enum MapSelection {
+  Standard,
+  Conference,
+  Classroom,
+}
 
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
 
@@ -34,6 +39,12 @@ export interface TownJoinResponse {
   friendlyName: string;
   /** Is this a private town? * */
   isPubliclyListed: boolean;
+  /** The map ID of this town  */
+  mapID: MapSelection;
+  /** enable video */
+  enableVideo: boolean;
+  /** enable proximity */
+  enableProximity: boolean;
 }
 
 /**
@@ -42,6 +53,9 @@ export interface TownJoinResponse {
 export interface TownCreateRequest {
   friendlyName: string;
   isPubliclyListed: boolean;
+  mapID: MapSelection;
+  enableVideo: boolean;
+  enableProximity: boolean;
 }
 
 /**
@@ -77,6 +91,9 @@ export interface TownUpdateRequest {
   coveyTownPassword: string;
   friendlyName?: string;
   isPubliclyListed?: boolean;
+  mapID?: MapSelection;
+  enableVideo?: boolean;
+  enableProximity?: boolean;
 }
 
 /**
@@ -92,7 +109,10 @@ export type CoveyTownInfo = {
   friendlyName: string;
   coveyTownID: string;
   currentOccupancy: number;
-  maximumOccupancy: number
+  maximumOccupancy: number;
+  mapID: MapSelection;
+  enableVideo: boolean
+  enableProximity: boolean;
 };
 
 export default class TownsServiceClient {
