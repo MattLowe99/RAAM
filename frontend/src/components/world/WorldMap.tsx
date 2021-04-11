@@ -4,6 +4,12 @@ import Player, { UserLocation } from '../../classes/Player';
 import Video from '../../classes/Video/Video';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 
+enum MapSelection {
+  Standard,
+  Conference,
+  Classroom
+}
+
 // https://medium.com/@michaelwesthadley/modular-game-worlds-in-phaser-3-tilemaps-1-958fc7e6bbd6
 class CoveyGameScene extends Phaser.Scene {
   private player?: {
@@ -31,20 +37,43 @@ class CoveyGameScene extends Phaser.Scene {
 
   private video: Video;
 
+  private mapSelection: MapSelection;
+
   private emitMovement: (loc: UserLocation) => void;
 
-  constructor(video: Video, emitMovement: (loc: UserLocation) => void) {
+  constructor(mapSelection: MapSelection, video: Video, emitMovement: (loc: UserLocation) => void) {
     super('PlayGame');
+    this.mapSelection = mapSelection;
     this.video = video;
     this.emitMovement = emitMovement;
   }
 
   preload() {
     // this.load.image("logo", logoImg);
-    this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
-    this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+    // this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+    // this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+    // this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
+        switch (this.mapSelection) {
+      case MapSelection.Standard:
+        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        break;
+      case MapSelection.Conference:
+        this.load.image('tiles', '/assets/tilesets/conference-items.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/conference-town.json');
+        break;
+      case MapSelection.Classroom:
+        this.load.image('tiles', '/assets/tilesets/classroom-items.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town.json');
+        break;
+      default:
+        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        break;
+    }
     this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
   }
+
 
   updatePlayersLocations(players: Player[]) {
     if (!this.ready) {
@@ -212,17 +241,36 @@ class CoveyGameScene extends Phaser.Scene {
   create() {
     const map = this.make.tilemap({ key: 'map' });
 
-    /* Parameters are the name you gave the tileset in Tiled and then the key of the
+        /* Parameters are the name you gave the tileset in Tiled and then the key of the
      tileset image in Phaser's cache (i.e. the name you used in preload)
      */
-    const tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    let tileset: Phaser.Tilemaps.Tileset;
+    // Need to assign a default value
+    tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+    switch (this.mapSelection) {
+      case MapSelection.Standard:
+      tileset = map.addTilesetImage('tuxmon-sample-32px-extruded', 'tiles');
+        break;
+      case MapSelection.Conference:
+      tileset = map.addTilesetImage('conference-items', 'tiles');
+        break;
+      case MapSelection.Classroom:
+        tileset = map.addTilesetImage('classroom-items', 'tiles');
+        console.log('Classroom map');
+        break;
+      default:
+        this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
+        console.log('Default map');
+        break;
+    }
 
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const belowLayer = map.createLayer('Below Player', tileset, 0, 0);
-    const worldLayer = map.createLayer('World', tileset, 0, 0);
+    const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);
+    const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
     worldLayer.setCollisionByProperty({ collides: true });
-    const aboveLayer = map.createLayer('Above Player', tileset, 0, 0);
+    const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
     /* By default, everything gets depth sorted on the screen in the order we created things.
      Here, we want the "Above Player" layer to sit on top of the player, so we explicitly give
      it a depth. Higher depths will sit on top of lower depth objects.
@@ -449,7 +497,7 @@ export default function WorldMap(): JSX.Element {
 
     const game = new Phaser.Game(config);
     if (video) {
-      const newGameScene = new CoveyGameScene(video, emitMovement);
+      const newGameScene = new CoveyGameScene(MapSelection.Classroom, video, emitMovement);
       setGameScene(newGameScene);
       game.scene.add('coveyBoard', newGameScene, true);
       video.pauseGame = () => {
