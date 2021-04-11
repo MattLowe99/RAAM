@@ -267,10 +267,10 @@ class CoveyGameScene extends Phaser.Scene {
 
     // Parameters: layer name (or index) from Tiled, tileset, x, y
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const belowLayer = map.createStaticLayer('Below Player', tileset, 0, 0);
-    const worldLayer = map.createStaticLayer('World', tileset, 0, 0);
+    const belowLayer = map.createLayer('Below Player', tileset, 0, 0);
+    const worldLayer = map.createLayer('World', tileset, 0, 0);
     worldLayer.setCollisionByProperty({ collides: true });
-    const aboveLayer = map.createStaticLayer('Above Player', tileset, 0, 0);
+    const aboveLayer = map.createLayer('Above Player', tileset, 0, 0);
     /* By default, everything gets depth sorted on the screen in the order we created things.
      Here, we want the "Above Player" layer to sit on top of the player, so we explicitly give
      it a depth. Higher depths will sit on top of lower depth objects.
@@ -497,6 +497,7 @@ export default function WorldMap(): JSX.Element {
 
     const game = new Phaser.Game(config);
     if (video) {
+w
       const newGameScene = new CoveyGameScene(MapSelection.Classroom, video, emitMovement);
       setGameScene(newGameScene);
       game.scene.add('coveyBoard', newGameScene, true);
