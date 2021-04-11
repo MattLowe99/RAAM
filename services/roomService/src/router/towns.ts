@@ -21,6 +21,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
       const result = await townJoinHandler({
         userName: req.body.userName,
         coveyTownID: req.body.coveyTownID,
+        avatarName: req.body.avatarName,
       });
       res.status(StatusCodes.OK)
         .json(result);
@@ -96,6 +97,9 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         isPubliclyListed: req.body.isPubliclyListed,
         friendlyName: req.body.friendlyName,
         coveyTownPassword: req.body.coveyTownPassword,
+	      mapID: req.body.mapID,
+	      enableVideo: req.body.enableVideo,
+	      enableProximity: req.body.enableProximity,
       });
       res.status(StatusCodes.OK)
         .json(result);
