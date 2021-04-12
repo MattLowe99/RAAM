@@ -5,7 +5,8 @@ import { ServerPlayer } from './Player';
 export enum MapSelection {
   Standard,
   Conference,
-  Classroom
+  Classroom,
+  Party
 }
 
 /**
