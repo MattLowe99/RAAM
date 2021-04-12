@@ -2,12 +2,20 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { ServerPlayer } from './Player';
 
+export enum MapSelection {
+  Standard,
+  Conference,
+  Classroom
+}
+
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
  */
 export interface TownJoinRequest {
   /** userName of the player that would like to join * */
   userName: string;
+  /** avatarName of the avatar that would the player like to user * */
+  avatarName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
 }
@@ -31,6 +39,12 @@ export interface TownJoinResponse {
   friendlyName: string;
   /** Is this a private town? * */
   isPubliclyListed: boolean;
+  /** The map ID of this town  */
+  mapID: MapSelection;
+  /** enable Video of this town */
+  enableVideo: boolean;
+  /** enable Proximity of this town */
+  enableProximity: boolean;
 }
 
 /**
@@ -39,6 +53,9 @@ export interface TownJoinResponse {
 export interface TownCreateRequest {
   friendlyName: string;
   isPubliclyListed: boolean;
+  mapID: MapSelection;
+  enableVideo: boolean;
+  enableProximity: boolean;
 }
 
 /**
@@ -74,6 +91,16 @@ export interface TownUpdateRequest {
   coveyTownPassword: string;
   friendlyName?: string;
   isPubliclyListed?: boolean;
+  mapID?: MapSelection;
+  enableVideo?: boolean;
+  enableProximity?: boolean;
+}
+
+/**
+ * Payload sent by the client to update an avatar
+ */
+export interface AvatarUploadRequest {
+  avatarImageUrl: string;
 }
 
 /**
@@ -90,6 +117,9 @@ export type CoveyTownInfo = {
   coveyTownID: string;
   currentOccupancy: number;
   maximumOccupancy: number
+  mapID: MapSelection;
+  enableVideo: boolean;
+  enableProximity: boolean
 };
 
 export default class TownsServiceClient {
@@ -140,6 +170,11 @@ export default class TownsServiceClient {
   async joinTown(requestData: TownJoinRequest): Promise<TownJoinResponse> {
     const responseWrapper = await this._axios.post('/sessions', requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
+  }
+
+  async uploadAvatar(requestData: AvatarUploadRequest): Promise<void> {
+    const responseWrapper = await this._axios.post('/', requestData);
+    return TownsServiceClient.unwrapOrThrowError(responseWrapper, true);
   }
 
 }
