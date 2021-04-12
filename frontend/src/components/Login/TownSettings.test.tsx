@@ -148,7 +148,7 @@ describe('Part 4 - Town Settings', () => {
           isPubliclyListed: true,
           enableVideo: undefined,
           enableProximity: undefined,
-          mapID : MapSelection.Classroom
+          mapID : MapSelection.Party
         }));
       expect(mockDeleteTown).not.toBeCalled();
 
