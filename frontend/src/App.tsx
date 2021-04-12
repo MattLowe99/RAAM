@@ -9,7 +9,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
 import WorldMap from './components/world/WorldMap';
 import VideoOverlay from './components/VideoCall/VideoOverlay/VideoOverlay';
-import { CoveyAppState, NearbyPlayers } from './CoveyTypes';
+import { CoveyAppState, NearbyPlayers, MapSelection } from './CoveyTypes';
 import VideoContext from './contexts/VideoContext';
 import Login from './components/Login/Login';
 import CoveyAppContext from './contexts/CoveyAppContext';
@@ -27,7 +27,7 @@ import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClie
 import Video from './classes/Video/Video';
 
 type CoveyAppUpdate =
-  | { action: 'doConnect'; data: { userName: string, townFriendlyName: string, townID: string,townIsPubliclyListed:boolean, sessionToken: string, myPlayerID: string, socket: Socket, players: Player[], emitMovement: (location: UserLocation) => void } }
+  | { action: 'doConnect'; data: { userName: string, townFriendlyName: string, townID: string,townIsPubliclyListed:boolean, sessionToken: string, myPlayerID: string, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, socket: Socket, players: Player[], emitMovement: (location: UserLocation) => void } }
   | { action: 'addPlayer'; player: Player }
   | { action: 'playerMoved'; player: Player }
   | { action: 'playerDisconnect'; player: Player }
@@ -45,6 +45,9 @@ function defaultAppState(): CoveyAppState {
     currentTownIsPubliclyListed: false,
     sessionToken: '',
     userName: '',
+    mapID: MapSelection.Standard,
+    enableVideo: true,
+    enableProximity: true,
     socket: null,
     currentLocation: {
       x: 0, y: 0, rotation: 'front', moving: false,
@@ -61,6 +64,9 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     currentTownID: state.currentTownID,
     currentTownIsPubliclyListed: state.currentTownIsPubliclyListed,
     myPlayerID: state.myPlayerID,
+    mapID: state.mapID,
+    enableVideo: state.enableVideo,
+    enableProximity: state.enableProximity,
     players: state.players,
     currentLocation: state.currentLocation,
     nearbyPlayers: state.nearbyPlayers,
@@ -70,17 +76,19 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     apiClient: state.apiClient,
   };
 
-  function calculateNearbyPlayers(players: Player[], currentLocation: UserLocation) {
-    const isWithinCallRadius = (p: Player, location: UserLocation) => {
+  function calculateNearbyPlayers(players: Player[], currentLocation: UserLocation, enable: boolean) {
+    const isWithinCallRadius = (p: Player, location: UserLocation, en: boolean) => {
       if (p.location && location) {
         const dx = p.location.x - location.x;
         const dy = p.location.y - location.y;
         const d = Math.sqrt(dx * dx + dy * dy);
-        return d < 80;
+        // return d < 80;
+        // if not enable proximity, always return true
+        return d < 80 || !en;
       }
       return false;
     };
-    return { nearbyPlayers: players.filter((p) => isWithinCallRadius(p, currentLocation)) };
+    return { nearbyPlayers: players.filter((p) => isWithinCallRadius(p, currentLocation, enable)) };
   }
 
   function samePlayers(a1: NearbyPlayers, a2: NearbyPlayers) {
@@ -95,6 +103,9 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     case 'doConnect':
       nextState.sessionToken = update.data.sessionToken;
       nextState.myPlayerID = update.data.myPlayerID;
+      nextState.mapID = update.data.mapID;
+      nextState.enableVideo = update.data.enableVideo;
+      nextState.enableProximity = update.data.enableProximity;
       nextState.currentTownFriendlyName = update.data.townFriendlyName;
       nextState.currentTownID = update.data.townID;
       nextState.currentTownIsPubliclyListed = update.data.townIsPubliclyListed;
@@ -114,7 +125,9 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
         nextState.players = nextState.players.concat([update.player]);
       }
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-        nextState.currentLocation);
+        nextState.currentLocation, nextState.enableProximity);    
+      // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
+      //   nextState.currentLocation);
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
         nextState.nearbyPlayers = state.nearbyPlayers;
       }
@@ -122,7 +135,9 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     case 'weMoved':
       nextState.currentLocation = update.location;
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-        nextState.currentLocation);
+        nextState.currentLocation, nextState.enableProximity);    
+      // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
+      //   nextState.currentLocation);
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
         nextState.nearbyPlayers = state.nearbyPlayers;
       }
@@ -132,7 +147,9 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.players = nextState.players.filter((player) => player.id !== update.player.id);
 
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-        nextState.currentLocation);
+        nextState.currentLocation, nextState.enableProximity);    
+      // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
+      //   nextState.currentLocation);
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
         nextState.nearbyPlayers = state.nearbyPlayers;
       }
@@ -147,11 +164,12 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
   return nextState;
 }
 
-async function GameController(initData: TownJoinResponse,
-  dispatchAppUpdate: (update: CoveyAppUpdate) => void) {
+async function GameController(initData: TownJoinResponse, mapID: MapSelection, enableVideo: boolean,
+  enableProximity: boolean, dispatchAppUpdate: (update: CoveyAppUpdate) => void) {
   // Now, set up the game sockets
   const gamePlayerID = initData.coveyUserID;
   const sessionToken = initData.coveySessionToken;
+  const mid = mapID;
   const url = process.env.REACT_APP_TOWNS_SERVICE_URL;
   assert(url);
   const video = Video.instance();
@@ -190,6 +208,9 @@ async function GameController(initData: TownJoinResponse,
       townFriendlyName: roomName,
       townID: video.coveyTownID,
       myPlayerID: gamePlayerID,
+      mapID: mid,
+      enableVideo,
+      enableProximity,
       townIsPubliclyListed: video.isPubliclyListed,
       emitMovement,
       socket,
@@ -202,8 +223,10 @@ async function GameController(initData: TownJoinResponse,
 function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefined>> }) {
   const [appState, dispatchAppUpdate] = useReducer(appStateReducer, defaultAppState());
 
-  const setupGameController = useCallback(async (initData: TownJoinResponse) => {
-    await GameController(initData, dispatchAppUpdate);
+  const setupGameController = useCallback(async (initData: TownJoinResponse, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean) => {
+    await GameController(initData, mapID, enableVideo, enableProximity, dispatchAppUpdate);
+  // const setupGameController = useCallback(async (initData: TownJoinResponse) => {
+  //   await GameController(initData, dispatchAppUpdate);
     return true;
   }, [dispatchAppUpdate]);
   const videoInstance = Video.instance();
@@ -224,11 +247,11 @@ function App(props: { setOnDisconnect: Dispatch<SetStateAction<Callback | undefi
     }
     return (
       <div>
-        <WorldMap />
-        <VideoOverlay preferredMode="fullwidth" />
+        <WorldMap mid={appState.mapID}/>
+        <VideoOverlay preferredMode="fullwidth" enableVideo = {appState.enableVideo} />
       </div>
     );
-  }, [setupGameController, appState.sessionToken, videoInstance]);
+  }, [setupGameController, appState.sessionToken, videoInstance,  appState.mapID, appState.enableVideo]);
   return (
 
     <CoveyAppContext.Provider value={appState}>
