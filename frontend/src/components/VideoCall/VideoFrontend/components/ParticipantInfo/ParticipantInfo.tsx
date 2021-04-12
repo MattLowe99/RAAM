@@ -153,6 +153,7 @@ interface ParticipantInfoProps {
   slot?: number;
   insideGrid: boolean;
   highlight?: boolean;
+  enableVideo: boolean;
 }
 
 export default function ParticipantInfo({
@@ -166,16 +167,20 @@ export default function ParticipantInfo({
   slot,
   insideGrid,
   highlight,
+  enableVideo,
 }: ParticipantInfoProps) {
   const publications = usePublications(participant);
 
   const audioPublication = publications.find((p) => p.kind === 'audio');
-  const videoPublication = publications.find((p) => p.trackName.includes('camera'));
+  // const videoPublication = publications.find((p) => p.trackName.includes('camera'));
+  const videoPublication = publications.find((p) => p.trackName.includes('camera') && enableVideo);
 
   const isVideoEnabled = Boolean(videoPublication);
-  const isScreenShareEnabled = publications.find((p) => p.trackName.includes('screen'));
+  // const isScreenShareEnabled = publications.find((p) => p.trackName.includes('screen'));
+  const isScreenShareEnabled = publications.find((p) => p.trackName.includes('screen') && enableVideo);
 
   const videoTrack = useTrack(videoPublication);
+  // const isVideoSwitchedOff = useIsTrackSwitchedOff(videoTrack as LocalVideoTrack | RemoteVideoTrack) || !enableVideo;
   const isVideoSwitchedOff = useIsTrackSwitchedOff(videoTrack as LocalVideoTrack | RemoteVideoTrack);
 
   const audioTrack = useTrack(audioPublication) as LocalAudioTrack | RemoteAudioTrack | undefined;
