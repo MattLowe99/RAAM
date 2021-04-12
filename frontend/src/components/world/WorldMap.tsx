@@ -81,6 +81,10 @@ class CoveyGameScene extends Phaser.Scene {
         this.load.image('tiles', '/assets/tilesets/classroom-items.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/classroom-town1.json');
         break;
+      case MapSelection.Party:
+        this.load.image('tiles', '/assets/tilesets/party-items.png');
+        this.load.tilemapTiledJSON('map', '/assets/tilemaps/party-town.json');
+        break;
       default:
         this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
