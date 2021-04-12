@@ -4,9 +4,11 @@ import DeviceSelectionScreen from './DeviceSelectionScreen/DeviceSelectionScreen
 import IntroContainer from '../IntroContainer/IntroContainer';
 import { TownJoinResponse } from '../../../../../classes/TownsServiceClient';
 import TownSelection from '../../../../Login/TownSelection';
+import { MapSelection } from '../../../../../CoveyTypes';
 
-export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean>; setMediaError?(error: Error): void }) {
-  return (
+//export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse) => Promise<boolean>; setMediaError?(error: Error): void }) {
+export default function PreJoinScreens(props: { doLogin: (initData: TownJoinResponse, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean) => Promise<boolean>; setMediaError?(error: Error): void }) {
+    return (
     <IntroContainer>
       <Heading as="h2" size="xl">Welcome to Covey.Town!</Heading>
       <Text p="4">
