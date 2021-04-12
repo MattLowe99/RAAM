@@ -17,6 +17,7 @@ interface ParticipantProps {
   slot?: number;
   insideGrid: boolean;
   highlight?: boolean;
+  enableVideo: boolean;
 }
 
 export default function Participant({
@@ -31,6 +32,7 @@ export default function Participant({
   slot,
   insideGrid,
   highlight,
+  enableVideo,
 }: ParticipantProps) {
   return (
     <ParticipantInfo
@@ -43,6 +45,7 @@ export default function Participant({
       slot={slot}
       insideGrid={insideGrid}
       highlight={highlight}
+      enableVideo={enableVideo}
     >
       <ParticipantTracks
         participant={participant}
