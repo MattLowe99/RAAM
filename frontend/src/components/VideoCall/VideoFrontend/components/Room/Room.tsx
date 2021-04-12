@@ -29,7 +29,7 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) => ({
   }),
 }));
 
-export default function Room() {
+export default function Room(props: { enableVideo: boolean }) {
   const { preferredMode } = useAppState();
   const presenting = usePresenting();
   const classes = useStyles({ preferredMode, presenting });
@@ -37,7 +37,7 @@ export default function Room() {
   return (
     <div className={clsx(classes.container)}>
       {presenting === 'presenting' ? <MainParticipant /> : <></>}
-      <ParticipantList gridView={presenting === 'not presenting'} />
+      <ParticipantList gridView={presenting === 'not presenting'} enableVideo={props.enableVideo} />
     </div>
   );
 }
