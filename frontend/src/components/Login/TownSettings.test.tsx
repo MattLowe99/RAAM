@@ -6,7 +6,7 @@ import { fireEvent, render, RenderResult, waitFor } from '@testing-library/react
 import { nanoid } from 'nanoid';
 import { TargetElement } from '@testing-library/user-event';
 import TownSettings from './TownSettings';
-import TownsServiceClient from '../../classes/TownsServiceClient';
+import TownsServiceClient, { MapSelection } from '../../classes/TownsServiceClient';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
 
 const mockUseCoveyAppState = jest.fn(() => (Promise.resolve()));
@@ -38,6 +38,9 @@ function wrappedTownSettings() {
     nearbyPlayers: { nearbyPlayers: [] },
     players: [],
     myPlayerID: '',
+    mapID: MapSelection.Standard,
+    enableVideo: true,
+    enableProximity: true,
     currentTownID: '',
     currentTownFriendlyName: '',
     currentTownIsPubliclyListed: false,
@@ -142,7 +145,10 @@ describe('Part 4 - Town Settings', () => {
           coveyTownID: params.townID,
           coveyTownPassword,
           friendlyName,
-          isPubliclyListed: true
+          isPubliclyListed: true,
+          enableVideo: undefined,
+          enableProximity: undefined,
+          mapID : MapSelection.Classroom
         }));
       expect(mockDeleteTown).not.toBeCalled();
 

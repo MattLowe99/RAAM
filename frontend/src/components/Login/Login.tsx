@@ -3,9 +3,11 @@ import PreJoinScreens from '../VideoCall/VideoFrontend/components/PreJoinScreens
 import MediaErrorSnackbar
   from '../VideoCall/VideoFrontend/components/PreJoinScreens/MediaErrorSnackbar/MediaErrorSnackbar';
 import { TownJoinResponse } from '../../classes/TownsServiceClient';
+import { MapSelection } from '../../CoveyTypes';
 
 interface LoginProps {
-  doLogin: (initData: TownJoinResponse) => Promise<boolean>
+  doLogin: (initData: TownJoinResponse, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean) => Promise<boolean>
+  // doLogin: (initData: TownJoinResponse) => Promise<boolean>
 }
 
 export default function Login({ doLogin }: LoginProps): JSX.Element {
