@@ -6,6 +6,7 @@ export enum MapSelection {
   Standard,
   Conference,
   Classroom,
+  Party,
 }
 
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
