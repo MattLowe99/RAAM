@@ -35,11 +35,13 @@ const TownSettings: React.FunctionComponent = () => {
   const [isPubliclyListed, setIsPubliclyListed] = useState<boolean>(currentTownIsPubliclyListed);
   const [roomUpdatePassword, setRoomUpdatePassword] = useState<string>('');
 
-  let cmapIDi = '3';
+  let cmapIDi = '4';
   if (mapID === MapSelection.Standard) {
     cmapIDi = '1';
   } else if (mapID === MapSelection.Conference) {
     cmapIDi = '2';
+  } else if (mapID === MapSelection.Classroom) {
+    cmapIDi = '3';
   }
   const [cmapID, setcMapID] = useState<string>(cmapIDi);
   const [videoEnabled, setEnableVideo] = useState<boolean>(enableVideo);
@@ -57,11 +59,13 @@ const TownSettings: React.FunctionComponent = () => {
 
   const toast = useToast()
   const processUpdates = async (action: string) =>{
-    let mapIDE = MapSelection.Classroom;
+    let mapIDE = MapSelection.Party;
     if (cmapID === '1') {
       mapIDE = MapSelection.Standard;
     } else if (cmapID === '2') {
       mapIDE = MapSelection.Conference;
+    } else if (cmapID === '3') {
+      mapIDE = MapSelection.Classroom;
     }
 
     if(action === 'delete'){
@@ -141,6 +145,7 @@ const TownSettings: React.FunctionComponent = () => {
                   <Radio value="1"> Playground </Radio>
                   <Radio value="2"> Conference Room </Radio>
                   <Radio value="3"> Class Room </Radio>
+                  <Radio value="4"> Party Room </Radio>
                 </SimpleGrid>
               </RadioGroup>
             <FormControl isRequired>

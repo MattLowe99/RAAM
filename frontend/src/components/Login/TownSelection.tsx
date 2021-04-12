@@ -103,11 +103,13 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   }, [doLogin, userName, connect, toast]);
 
   const handleCreate = async (index: number) => {
-    let mapIDE = MapSelection.Classroom;
+    let mapIDE = MapSelection.Party;
     if (mapID === '1') {
       mapIDE = MapSelection.Standard;
     } else if (mapID === '2') {
       mapIDE = MapSelection.Conference;
+    } else if (mapID === '3') {
+      mapIDE = MapSelection.Classroom;
     }
     if (!userName || userName.length === 0) {
       toast({
@@ -148,6 +150,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         isClosable: true,
         duration: null,
       })
+      // await handleJoin(newTownInfo.coveyTownID, avatars[avatarIndex]);
       await handleJoin(newTownInfo.coveyTownID, avatars[index]);
     } catch (err) {
       toast({
@@ -241,6 +244,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                       <Radio value='1'> Playground </Radio>
                       <Radio value='2'> Conference Room </Radio>
                       <Radio value='3'> Class Room </Radio>
+                      <Radio value='4'> Party Room </Radio>
                     </SimpleGrid>
                   </RadioGroup>
               </Box>
