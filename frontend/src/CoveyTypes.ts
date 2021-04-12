@@ -36,5 +36,6 @@ export type CoveyAppState = {
 export enum MapSelection {
   Standard,
   Conference,
-  Classroom
+  Classroom,
+  Party
 }
