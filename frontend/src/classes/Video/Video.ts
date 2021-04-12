@@ -1,3 +1,4 @@
+import { MapSelection } from '../../CoveyTypes';
 import DebugLogger from '../DebugLogger';
 import TownsServiceClient, { TownJoinResponse } from '../TownsServiceClient';
 
@@ -20,17 +21,26 @@ export default class Video {
 
   private _coveyTownID: string;
 
+  private _avatarName: string;
+
   private _townFriendlyName: string | undefined;
 
   private _isPubliclyListed: boolean | undefined;
+
+  private _mapID: MapSelection | undefined;
+
+  private _enableVideo: boolean | undefined;
+
+  private _enableProximity: boolean | undefined;
 
   pauseGame: () => void = ()=>{};
 
   unPauseGame: () => void = ()=>{};
 
-  constructor(userName: string, coveyTownID: string) {
+  constructor(userName: string, coveyTownID: string, avatarName: string) {
     this._userName = userName;
     this._coveyTownID = coveyTownID;
+    this._avatarName = avatarName;
   }
 
   get isPubliclyListed(): boolean {
@@ -52,6 +62,22 @@ export default class Video {
     return this._coveyTownID;
   }
 
+  get avatarName(): string {
+    return this._avatarName;
+  }
+
+  get mapID(): MapSelection | undefined {
+    return this._mapID;
+  }
+
+  get enableVideo(): boolean | undefined {
+    return this._enableVideo;
+  }
+
+  get enableProximity(): boolean | undefined {
+    return this._enableProximity;
+  }
+
   private async setup(): Promise<TownJoinResponse> {
     if (!this.initialisePromise) {
       this.initialisePromise = new Promise((resolve, reject) => {
@@ -59,12 +85,16 @@ export default class Video {
         this.townsServiceClient.joinTown({
           coveyTownID: this._coveyTownID,
           userName: this._userName,
+          avatarName: this._avatarName,
         })
           .then((result) => {
             this.sessionToken = result.coveySessionToken;
             this.videoToken = result.providerVideoToken;
             this._townFriendlyName = result.friendlyName;
             this._isPubliclyListed = result.isPubliclyListed;
+            this._mapID = result.mapID;
+            this._enableVideo = result.enableVideo;
+            this._enableProximity = result.enableProximity;
             resolve(result);
           })
           .catch((err) => {
@@ -98,11 +128,11 @@ export default class Video {
     return this.teardownPromise ?? Promise.resolve();
   }
 
-  public static async setup(username: string, coveyTownID: string): Promise<TownJoinResponse> {
+  public static async setup(username: string, coveyTownID: string, avatarName: string): Promise<TownJoinResponse> {
     let result = null;
 
     if (!Video.video) {
-      Video.video = new Video(username, coveyTownID);
+      Video.video = new Video(username, coveyTownID, avatarName);
     }
 
     try {
