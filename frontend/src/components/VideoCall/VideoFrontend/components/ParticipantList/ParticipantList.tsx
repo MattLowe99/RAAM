@@ -60,7 +60,7 @@ function useStyles(width: 'sidebar' | 'fullwidth') {
   }))();
 }
 
-export default function ParticipantList(props: { gridView: boolean }) {
+export default function ParticipantList(props: { gridView: boolean, enableVideo: boolean }) {
   const {
     room: { localParticipant },
   } = useVideoContext();
@@ -87,6 +87,7 @@ export default function ParticipantList(props: { gridView: boolean }) {
         insideGrid={props.gridView}
                 // highlight={highlightedProfiles?.includes(localUserProfile.id) ?? false}
         slot={0}
+        enableVideo={props.enableVideo}
       />
       {participants
         .filter((p) => nearbyPlayers.find((player) => player.id == p.participant.identity))
@@ -110,7 +111,8 @@ export default function ParticipantList(props: { gridView: boolean }) {
               hideParticipant={hideParticipant}
               slot={participantWithSlot.slot}
               insideGrid={props.gridView}
-            />
+              enableVideo={props.enableVideo}
+              />
           );
         })}
     </>
