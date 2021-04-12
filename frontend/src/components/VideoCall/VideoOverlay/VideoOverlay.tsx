@@ -37,6 +37,7 @@ interface Props {
   hexColour?: string;
   preferredMode: 'sidebar' | 'fullwidth';
   onPresentingChanged?(presenting: boolean): void;
+  enableVideo: boolean;
 }
 
 export default function VideoGrid(props: Props) {
@@ -125,7 +126,7 @@ export default function VideoGrid(props: Props) {
           <Main style={{ paddingBottom: '90px' }}>
             <ReconnectingNotification />
             <MobileTopMenuBar />
-            <Room />
+            <Room enableVideo = {props.enableVideo} />
             <MenuBar setMediaError={setMediaError} />
           </Main>
         )}
