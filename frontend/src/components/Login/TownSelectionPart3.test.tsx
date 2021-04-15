@@ -5,7 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { fireEvent, render, RenderResult, waitFor } from '@testing-library/react'
 import userEvent, { TargetElement } from '@testing-library/user-event'
 import { nanoid } from 'nanoid';
-import TownsServiceClient, { MapSelection } from '../../classes/TownsServiceClient';
+import TownsServiceClient, {MapSelection, SpriteRestriction} from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
@@ -42,6 +42,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 0,
       maximumOccupancy: 1,
     },
@@ -51,6 +53,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 2,
       maximumOccupancy: 10,
     },
@@ -60,6 +64,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 1,
       maximumOccupancy: 1,
     },
@@ -69,6 +75,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 8,
       maximumOccupancy: 8,
     },
@@ -78,6 +86,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 9,
       maximumOccupancy: 5,
     },
@@ -87,6 +97,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 99,
       maximumOccupancy: 100,
     },
@@ -106,6 +118,8 @@ function wrappedTownSelection() {
     mapID: MapSelection.Standard,
     enableVideo: true,
     enableProximity: true,
+    spriteRestriction: SpriteRestriction.allUsers,
+    restrictedSpriteName: '',
     currentTownID: '',
     currentTownIsPubliclyListed: false,
     currentTownFriendlyName: '',
@@ -229,6 +243,8 @@ describe('Town Selection - depends on Part 1 passing', () => {
               mapID: MapSelection.Standard,
               enableVideo: true,
               enableProximity: true,
+              spriteRestriction: SpriteRestriction.allUsers,
+              restrictedSpriteName: 'misa',
           }));
         });
 
@@ -250,6 +266,8 @@ describe('Town Selection - depends on Part 1 passing', () => {
               mapID: MapSelection.Standard,
               enableVideo: true,
               enableProximity: true,
+              spriteRestriction: SpriteRestriction.allUsers,
+              restrictedSpriteName: 'misa',
            }));
 
         });
@@ -272,6 +290,8 @@ describe('Town Selection - depends on Part 1 passing', () => {
               mapID: MapSelection.Standard,
               enableVideo: true,
               enableProximity: true,
+              spriteRestriction: SpriteRestriction.allUsers,
+              restrictedSpriteName: 'misa',
             }));
           await waitFor(() => expect(mockToast)
             .toBeCalledWith(expect.objectContaining({
@@ -307,7 +327,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
           // Check for call sequence
           await waitFor(() => expect(mockVideoSetup)
-            .toBeCalledWith(userName, townID, 'misa'));
+            .toBeCalledWith(userName, townID, 'misa', ''));
           await waitFor(() => expect(doLoginMock)
             .toBeCalledWith({ providerVideoToken: videoToken, mapID: mid, enableVideo: true, enableProximity: true }, mid, true, true));
             // .toBeCalledWith({ providerVideoToken: videoToken }));
@@ -330,6 +350,8 @@ describe('Town Selection - depends on Part 1 passing', () => {
               mapID: MapSelection.Standard,
               enableVideo: true,
               enableProximity: true,
+              spriteRestriction: SpriteRestriction.allUsers,
+              restrictedSpriteName: 'misa',
             }));
           await waitFor(() => expect(mockToast)
             .toBeCalledWith({
