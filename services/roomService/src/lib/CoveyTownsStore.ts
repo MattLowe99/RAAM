@@ -49,7 +49,7 @@ export default class CoveyTownsStore {
     return newTown;
   }
 
-  updateTown(coveyTownID: string, coveyTownPassword: string, friendlyName?: string, makePublic?: boolean, mapID?: MapSelection, enableVideo?: boolean, enableProximity?: boolean, spriteRestriction?: SpriteRestriction, restrictedSpriteName?: string): boolean {
+  updateTown(coveyTownID: string, coveyTownPassword: string, friendlyName?: string, makePublic?: boolean, mapID?: MapSelection, enableVideo?: boolean, enableProximity?: boolean): boolean {
     const existingTown = this.getControllerForTown(coveyTownID);
     if (existingTown && passwordMatches(coveyTownPassword, existingTown.townUpdatePassword)) {
       if (friendlyName !== undefined) {
@@ -69,12 +69,6 @@ export default class CoveyTownsStore {
       }
       if (enableProximity !== undefined) {
         existingTown.enableProximity = enableProximity;
-      }
-      if (spriteRestriction !== undefined) {
-        existingTown.spriteRestriction = spriteRestriction;
-      }
-      if (restrictedSpriteName !== undefined) {
-        existingTown.restrictedSpriteName = restrictedSpriteName;
       }
       return true;
     }

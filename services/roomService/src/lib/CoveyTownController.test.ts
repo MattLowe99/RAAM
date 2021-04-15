@@ -10,7 +10,7 @@ import PlayerSession from '../types/PlayerSession';
 import {townSubscriptionHandler} from '../requestHandlers/CoveyTownRequestHandlers';
 import CoveyTownsStore from './CoveyTownsStore';
 import * as TestUtils from '../client/TestUtils';
-import { MapSelection } from '../client/TownsServiceClient';
+import {MapSelection, SpriteRestriction} from '../client/TownsServiceClient';
 
 jest.mock('./TwilioVideo');
 
@@ -36,40 +36,65 @@ describe('CoveyTownController', () => {
   });
   it('constructor should set the friendlyName property', () => { // Included in handout
     const townName = `FriendlyNameTest-${nanoid()}`;
-    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
     expect(townController.friendlyName)
       .toBe(townName);
   });
-  it('constructor should set the mapID property', () => { // Included in handout
+  it('constructor should set the mapID property', () => {
     const townName = `FriendlyNameTest-${nanoid()}`;
     const townMapID = MapSelection.Standard;
-    const townController = new CoveyTownController(townName, false, townMapID, true, true);
+    const townController = new CoveyTownController(townName, false, townMapID, true, true, SpriteRestriction.allUsers, 'misa');
     expect(townController.friendlyName)
       .toBe(townName);
     expect(townController.mapID)
-      .toBe(townMapID);  
+      .toBe(townMapID);
   });
-  it('constructor should set the enableVideo property', () => { // Included in handout
+  it('constructor should set the enableVideo property', () => {
     const townName = `FriendlyNameTest-${nanoid()}`;
-    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
     expect(townController.friendlyName)
       .toBe(townName);
     expect(townController.enableVideo)
       .toBe(true);
-  });    
-  it('constructor should set the enableProximity property', () => { // Included in handout
+  });
+  it('constructor should set the enableProximity property', () => {
     const townName = `FriendlyNameTest-${nanoid()}`;
-    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
     expect(townController.friendlyName)
       .toBe(townName);
     expect(townController.enableProximity)
       .toBe(true);
-  });    
+  });
+  it('constructor should set the spriteRestriction property', () => {
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const allUsersRestriction = SpriteRestriction.allUsers;
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    expect(townController.friendlyName)
+      .toBe(townName);
+    expect(townController.spriteRestriction)
+      .toBe(allUsersRestriction);
+  });
+  it('constructor should set the restrictedSpriteName property', () => {
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    expect(townController.friendlyName)
+      .toBe(townName);
+    expect(townController.restrictedSpriteName)
+      .toBe('misa');
+  });
+  it('constructor should generate and set the spriteRestrictionPassword property', () => {
+    const townName = `FriendlyNameTest-${nanoid()}`;
+    const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    expect(townController.friendlyName)
+      .toBe(townName);
+    expect(townController.spriteRestrictionPassword)
+      .toBeDefined();
+  });
   describe('addPlayer', () => { // Included in handout
     it('should use the coveyTownID and player ID properties when requesting a video token',
       async () => {
         const townName = `FriendlyNameTest-${nanoid()}`;
-        const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true);
+        const townController = new CoveyTownController(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
         const newPlayerSession = await townController.addPlayer(new Player(nanoid(), '1'));
         expect(mockGetTokenForTown).toBeCalledTimes(1);
         expect(mockGetTokenForTown).toBeCalledWith(townController.coveyTownID, newPlayerSession.player.id);
@@ -82,7 +107,7 @@ describe('CoveyTownController', () => {
       mock<CoveyTownListener>()];
     beforeEach(() => {
       const townName = `town listeners and events tests ${nanoid()}`;
-      testingTown = new CoveyTownController(townName, false, MapSelection.Standard, false, false);
+      testingTown = new CoveyTownController(townName, false, MapSelection.Standard, false, false, SpriteRestriction.allUsers, 'misa');
       mockListeners.forEach(mockReset);
     });
     it('should notify added listeners of player movement when updatePlayerLocation is called', async () => {
@@ -170,7 +195,7 @@ describe('CoveyTownController', () => {
     let session: PlayerSession;
     beforeEach(async () => {
       const townName = `connectPlayerSocket tests ${nanoid()}`;
-      testingTown = CoveyTownsStore.getInstance().createTown(townName, false, MapSelection.Standard, true, true);
+      testingTown = CoveyTownsStore.getInstance().createTown(townName, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
       mockReset(mockSocket);
       player = new Player('test player', nanoid());
       session = await testingTown.addPlayer(player);
