@@ -54,10 +54,6 @@ The frontend will automatically re-compile and reload in your browser if you cha
 
 https://github.com/MattLowe99/RAAM
 
-TODO: Add how to access here!!!
-
 ### Netlify Deployment Link
 
 https://infallible-elion-e86ce8.netlify.app/
-
-

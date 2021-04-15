@@ -93,9 +93,10 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
 
       if (initData.spriteRestriction === SpriteRestriction.passwordUsers) {
         if (!initData.spritePasswordOverride && initData.restrictedSpriteName !== avatars[index]) {
+          const capitalizedName = initData.restrictedSpriteName.charAt(0).toUpperCase() + initData.restrictedSpriteName.slice(1);
           toast({
             title: 'Unable to join town',
-            description: `Please enter a valid password to override avatar restriction or select ${initData.restrictedSpriteName} as your avatar.`,
+            description: `Please enter a valid password to override avatar restriction or select ${capitalizedName} as your avatar.`,
             status: 'error',
           });
           return;
