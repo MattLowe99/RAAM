@@ -238,7 +238,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     for (let i = 0; i < avatars.length; i += 1) {
       const uppercaseName = handleAvatarName(i);
 
-      optionsArr.push(<option value={avatars[i]}>{uppercaseName}</option>);
+      optionsArr.push(<option key={`name-${i}`} value={avatars[i]}>{uppercaseName}</option>);
     }
 
     return optionsArr;
@@ -286,7 +286,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                 <Box flex="1">
                   <Button data-testid='updateAvatar'
                           onClick={() => handleAvatar(false)}>&#8592;</Button>
-                  <text>&nbsp;&nbsp;&nbsp;&nbsp;{avatarIndex + 1}/{avatars.length}&nbsp;&nbsp;&nbsp;&nbsp;</text>
+                  &nbsp;&nbsp;&nbsp;&nbsp;{avatarIndex + 1}/{avatars.length}&nbsp;&nbsp;&nbsp;&nbsp;
                   <Button data-testid='updateAvatar'
                           onClick={() => handleAvatar(true)}>&#8594;</Button>
                   <FormControl>
