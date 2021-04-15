@@ -9,6 +9,12 @@ export enum MapSelection {
   Party
 }
 
+export enum SpriteRestriction {
+  allUsers,
+  passwordUsers,
+  noUsers,
+}
+
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
  */
@@ -19,6 +25,8 @@ export interface TownJoinRequest {
   avatarName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+  /** Password to allow custom sprite selection if enabled in requested town */
+  spriteRestrictionPassword: string;
 }
 
 /**
@@ -46,6 +54,12 @@ export interface TownJoinResponse {
   enableVideo: boolean;
   /** enable Proximity of this town */
   enableProximity: boolean;
+  /** whether this player is able to choose any sprite in this town */
+  spritePasswordOverride: boolean;
+  /** Type of sprite restriction in this town */
+  spriteRestriction: SpriteRestriction;
+  /** Name of sprite used for restricted players, if enabled in this town */
+  restrictedSpriteName: string;
 }
 
 /**
@@ -57,6 +71,8 @@ export interface TownCreateRequest {
   mapID: MapSelection;
   enableVideo: boolean;
   enableProximity: boolean;
+  spriteRestriction: SpriteRestriction;
+  restrictedSpriteName: string;
 }
 
 /**
@@ -65,6 +81,7 @@ export interface TownCreateRequest {
 export interface TownCreateResponse {
   coveyTownID: string;
   coveyTownPassword: string;
+  spriteRestrictionPassword: string;
 }
 
 /**
@@ -95,6 +112,8 @@ export interface TownUpdateRequest {
   mapID?: MapSelection;
   enableVideo?: boolean;
   enableProximity?: boolean;
+  spriteRestriction?: SpriteRestriction;
+  restrictedSpriteName?: string;
 }
 
 /**
@@ -120,7 +139,9 @@ export type CoveyTownInfo = {
   maximumOccupancy: number
   mapID: MapSelection;
   enableVideo: boolean;
-  enableProximity: boolean
+  enableProximity: boolean;
+  spriteRestriction: SpriteRestriction;
+  restrictedSpriteName: string;
 };
 
 export default class TownsServiceClient {

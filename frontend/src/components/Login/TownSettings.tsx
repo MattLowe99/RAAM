@@ -17,7 +17,7 @@ import {
   Radio,
   RadioGroup,
   SimpleGrid,
-  Flex, 
+  Flex,
   useToast
 } from '@chakra-ui/react';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -30,7 +30,6 @@ const TownSettings: React.FunctionComponent = () => {
   const {isOpen, onOpen, onClose} = useDisclosure()
   const video = useMaybeVideo()
   const {apiClient, currentTownID, currentTownFriendlyName, currentTownIsPubliclyListed, mapID, enableVideo, enableProximity} = useCoveyAppState();
-  // const {apiClient, currentTownID, currentTownFriendlyName, currentTownIsPubliclyListed} = useCoveyAppState();
   const [friendlyName, setFriendlyName] = useState<string>(currentTownFriendlyName);
   const [isPubliclyListed, setIsPubliclyListed] = useState<boolean>(currentTownIsPubliclyListed);
   const [roomUpdatePassword, setRoomUpdatePassword] = useState<string>('');

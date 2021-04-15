@@ -1,10 +1,10 @@
 import Express from 'express';
 import * as http from 'http';
 import CORS from 'cors';
-import { AddressInfo } from 'net';
+import {AddressInfo} from 'net';
 import addTownRoutes from './router/towns';
 import CoveyTownsStore from './lib/CoveyTownsStore';
-import { MapSelection } from './client/TownsServiceClient';
+import {MapSelection, SpriteRestriction} from './client/TownsServiceClient';
 
 const app = Express();
 app.use(CORS());
@@ -18,6 +18,6 @@ server.listen(process.env.PORT || 8081, () => {
   console.log(`Listening on ${address.port}`);
   if (process.env.DEMO_TOWN_ID) {
     CoveyTownsStore.getInstance()
-      .createTown(process.env.DEMO_TOWN_ID, false, MapSelection.Standard, true, true);
+      .createTown(process.env.DEMO_TOWN_ID, false, MapSelection.Standard, true, true, SpriteRestriction.allUsers, '');
   }
 });

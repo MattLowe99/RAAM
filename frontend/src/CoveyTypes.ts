@@ -39,3 +39,9 @@ export enum MapSelection {
   Classroom,
   Party
 }
+
+export enum SpriteRestriction {
+  allUsers,
+  passwordUsers,
+  noUsers,
+}

@@ -9,6 +9,12 @@ export enum MapSelection {
   Party,
 }
 
+export enum SpriteRestriction {
+  allUsers,
+  passwordUsers,
+  noUsers,
+}
+
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
 
 /**
@@ -19,6 +25,8 @@ export interface TownJoinRequest {
   userName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+  /** Password to allow custom sprite selection if enabled in requested town */
+  spriteRestrictionPassword: string;
 }
 
 /**

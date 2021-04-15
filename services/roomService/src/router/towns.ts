@@ -22,6 +22,7 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
         userName: req.body.userName,
         coveyTownID: req.body.coveyTownID,
         avatarName: req.body.avatarName,
+        spriteRestrictionPassword: req.body.spriteRestrictionPassword,
       });
       res.status(StatusCodes.OK)
         .json(result);

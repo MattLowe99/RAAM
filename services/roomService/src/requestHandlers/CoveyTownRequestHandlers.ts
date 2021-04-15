@@ -4,7 +4,7 @@ import Player from '../types/Player';
 import { CoveyTownList, UserLocation } from '../CoveyTypes';
 import CoveyTownListener from '../types/CoveyTownListener';
 import CoveyTownsStore from '../lib/CoveyTownsStore';
-import { MapSelection } from '../client/TownsServiceClient';
+import { MapSelection, SpriteRestriction } from '../client/TownsServiceClient';
 
 /**
  * The format of a request to join a Town in Covey.Town, as dispatched by the server middleware
@@ -16,6 +16,8 @@ export interface TownJoinRequest {
   avatarName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+  /** Password to allow custom sprite selection if enabled in requested town */
+  spriteRestrictionPassword: string;
 }
 
 /**
@@ -43,6 +45,12 @@ export interface TownJoinResponse {
   enableVideo: boolean;
   /** enable proximity of this town */
   enableProximity: boolean;
+  /** whether this player is able to choose any sprite in this town */
+  spritePasswordOverride: boolean;
+  /** Type of sprite restriction in this town */
+  spriteRestriction: SpriteRestriction;
+  /** Name of sprite used for restricted players, if enabled in this town */
+  restrictedSpriteName: string;
 }
 
 /**
@@ -54,6 +62,8 @@ export interface TownCreateRequest {
   mapID: MapSelection;
   enableVideo: boolean;
   enableProximity: boolean;
+  spriteRestriction: SpriteRestriction;
+  restrictedSpriteName: string;
 }
 
 /**
@@ -62,6 +72,7 @@ export interface TownCreateRequest {
 export interface TownCreateResponse {
   coveyTownID: string;
   coveyTownPassword: string;
+  spriteRestrictionPassword: string;
 }
 
 /**
@@ -92,6 +103,8 @@ export interface TownUpdateRequest {
   mapID?: MapSelection;
   enableVideo?: boolean;
   enableProximity?: boolean;
+  spriteRestriction?: SpriteRestriction;
+  restrictedSpriteName?: string;
 }
 
 /**
@@ -121,6 +134,9 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       message: 'Error: No such town',
     };
   }
+
+  const passwordOverride = (coveyTownController.spriteRestrictionPassword === requestData.spriteRestrictionPassword);
+
   const newPlayer = new Player(requestData.userName, requestData.avatarName);
   const newSession = await coveyTownController.addPlayer(newPlayer);
   assert(newSession.videoToken);
@@ -136,6 +152,9 @@ export async function townJoinHandler(requestData: TownJoinRequest): Promise<Res
       mapID: coveyTownController.mapID,
       enableVideo: coveyTownController.enableVideo,
       enableProximity: coveyTownController.enableProximity,
+      spritePasswordOverride: passwordOverride,
+      spriteRestriction: coveyTownController.spriteRestriction,
+      restrictedSpriteName: coveyTownController.restrictedSpriteName,
     },
   };
 }
@@ -156,13 +175,13 @@ export async function townCreateHandler(requestData: TownCreateRequest): Promise
       message: 'FriendlyName must be specified',
     };
   }
-  // const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed);
-  const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed, requestData.mapID, requestData.enableVideo, requestData.enableProximity);
+  const newTown = townsStore.createTown(requestData.friendlyName, requestData.isPubliclyListed, requestData.mapID, requestData.enableVideo, requestData.enableProximity, requestData.spriteRestriction, requestData.restrictedSpriteName);
   return {
     isOK: true,
     response: {
       coveyTownID: newTown.coveyTownID,
       coveyTownPassword: newTown.townUpdatePassword,
+      spriteRestrictionPassword: newTown.spriteRestrictionPassword,
     },
   };
 }
@@ -179,7 +198,6 @@ export async function townDeleteHandler(requestData: TownDeleteRequest): Promise
 
 export async function townUpdateHandler(requestData: TownUpdateRequest): Promise<ResponseEnvelope<Record<string, null>>> {
   const townsStore = CoveyTownsStore.getInstance();
-  // const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed);
   const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed, requestData.mapID, requestData.enableVideo, requestData.enableProximity);
   return {
     isOK: success,
