@@ -35,6 +35,8 @@ interface TownSelectionProps {
   doLogin: (initData: TownJoinResponse, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean) => Promise<boolean>
 }
 
+const avatars = ['misa', 'bido'];
+
 export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Element {
   const [userName, setUserName] = useState<string>(Video.instance()?.userName || '');
   const [newTownName, setNewTownName] = useState<string>('');
@@ -45,7 +47,6 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { connect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
-  const avatars = ['misa', 'bido'];
   const preview = `../../assets/${avatars[avatarIndex]}-preview.png`;
   const [mapID, setMapID] = useState<string>('1');
   const [enableVideo, setEnableVideo] = useState<boolean>(true);

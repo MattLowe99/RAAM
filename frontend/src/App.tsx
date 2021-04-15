@@ -132,8 +132,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       }
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
         nextState.currentLocation, nextState.enableProximity);
-      // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-      //   nextState.currentLocation);
+
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
         nextState.nearbyPlayers = state.nearbyPlayers;
       }
@@ -142,8 +141,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.currentLocation = update.location;
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
         nextState.currentLocation, nextState.enableProximity);
-      // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-      //   nextState.currentLocation);
+
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
         nextState.nearbyPlayers = state.nearbyPlayers;
       }
@@ -154,8 +152,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
 
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
         nextState.currentLocation, nextState.enableProximity);
-      // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-      //   nextState.currentLocation);
+
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
         nextState.nearbyPlayers = state.nearbyPlayers;
       }
