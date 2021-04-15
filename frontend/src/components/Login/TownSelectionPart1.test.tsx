@@ -4,7 +4,7 @@ import '@testing-library/jest-dom'
 import { ChakraProvider } from '@chakra-ui/react'
 import { render, waitFor, within } from '@testing-library/react'
 import { nanoid } from 'nanoid';
-import TownsServiceClient, { MapSelection } from '../../classes/TownsServiceClient';
+import TownsServiceClient, { MapSelection, SpriteRestriction } from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
@@ -41,6 +41,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 0,
       maximumOccupancy: 1,
     },
@@ -50,6 +52,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 2,
       maximumOccupancy: 10,
     },
@@ -59,6 +63,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 1,
       maximumOccupancy: 1,
     },
@@ -68,6 +74,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 8,
       maximumOccupancy: 8,
     },
@@ -77,6 +85,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 9,
       maximumOccupancy: 5,
     },
@@ -86,6 +96,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 99,
       maximumOccupancy: 100,
     },
@@ -105,6 +117,8 @@ function wrappedTownSelection() {
     mapID: MapSelection.Standard,
     enableVideo: true,
     enableProximity: true,
+    spriteRestriction: SpriteRestriction.allUsers,
+    restrictedSpriteName: '',
     currentTownID: '',
     currentTownIsPubliclyListed: false,
     currentTownFriendlyName: '',
@@ -230,7 +244,6 @@ describe('Part 1 - Public room listing', () => {
     // All towns are in doc, now make sure they are sorted by occupancy
     let rows = renderData.getAllByRole('row');
     for (let i = 1; i < rows.length; i += 1) { // off-by-one for the header row
-      // console.log(rows[i]);
       const existing = within(rows[i])
         .getByText(expectedTowns1.towns[i - 1].friendlyName);
       expect(existing)
@@ -287,9 +300,9 @@ describe('Part 1 - Public room listing', () => {
       if (row) {
         const cells = within(row)
           .queryAllByRole('cell');
-        // Cell order: friendlyName, TownID, mapID, Video, Proximity, occupancy/join + button
+        // Cell order: friendlyName, TownID, mapID, Video, Proximity, Avatar Mode, occupancy/join + button
         expect(cells.length)
-          .toBe(6);
+          .toBe(7);
         expect(within(cells[0])
           .queryByText(town.friendlyName))
           .toBeInTheDocument();
@@ -305,7 +318,10 @@ describe('Part 1 - Public room listing', () => {
           expect(within(cells[4])
           .queryByText(town.enableProximity.toString()))
           .toBeInTheDocument();
-        expect(within(cells[5])
+          expect(within(cells[5])
+            .queryByText('Any'))
+            .toBeInTheDocument();
+        expect(within(cells[6])
           .queryByText(`${town.currentOccupancy}/${town.maximumOccupancy}`))
           .toBeInTheDocument();
       } else {
