@@ -13,6 +13,12 @@ Seen below is implementation of custom avatar selection where all available avat
 
 ![Avatar Selection](docs/Modified-Avatar-Selection-UI.png)
 
+Error toast when a town has a locked avatar and a player attempts to join with an invalid avatar selected: \
+![Locked Error Toast](docs/Locked-Error-Toast.png)
+
+Error toast when a town has password protected avatar selection and a player attempts to join with an incorrect override password OR an invalid avatar selected:\
+![Password Error Toast](docs/Password-Error-Toast.png)
+
 Below is the user interface that was changed to allow selection of map, enabling/disabling of video and proximity, and set avatar customization rules. The town map and avatar customization mode is selected using radio buttons, the video and proximity settings can be changed with checkboxes, and the default avatar is changed with a select input box.\
 **Note**: The default avatar select only appears when 'Password Users' or 'No Users' is selected for avatar customization mode to avoid confusion when 'All Users' is selected.
 
@@ -36,6 +42,10 @@ As shown below:
 The following shows an example of a new map along with users using different avatars.
 
 ![Conference Room](docs/Conf-Room-Avatar.png)
+
+When a new town is created with password protected avatar selection, the following modified success toast is now displayed in the newly created town:
+
+![Success Toast](docs/Success-Toast.png)
 
 Below is the conference room and classroom layouts.
 

@@ -105,9 +105,10 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
 
       if (initData.spriteRestriction === SpriteRestriction.noUsers) {
         if (initData.restrictedSpriteName !== avatars[index]) {
+          const capitalizedName = initData.restrictedSpriteName.charAt(0).toUpperCase() + initData.restrictedSpriteName.slice(1);
           toast({
             title: 'Unable to join town',
-            description: `Please select ${initData.restrictedSpriteName} as your avatar.`,
+            description: `Please select ${capitalizedName} as your avatar.`,
             status: 'error',
           });
           return;
