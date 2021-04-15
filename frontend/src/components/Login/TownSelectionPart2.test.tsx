@@ -108,6 +108,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
   let renderData: RenderResult<typeof import("@testing-library/dom/types/queries")>;
   let townIDToJoinField: HTMLInputElement;
   let userNameField: HTMLInputElement;
+  let avatarField: HTMLInputElement;
   let joinTownByIDButton: TargetElement;
   let expectedTowns: TownListResponse;
 
@@ -128,12 +129,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
       .toBeInTheDocument());
     townIDToJoinField = renderData.getByPlaceholderText('ID of town to join, or select from list') as HTMLInputElement;
     userNameField = renderData.getByPlaceholderText('Your name') as HTMLInputElement;
+    avatarField = renderData.getByPlaceholderText('Avatar name') as HTMLInputElement;
     joinTownByIDButton = renderData.getByTestId('joinTownByIDButton');
   });
   describe('Part 2 - Joining existing towns', () => {
 
     describe('Joining an existing town by ID', () => {
-      const joinTownWithOptions = async (params: { coveyTownID: string, userName: string }) => {
+      const joinTownWithOptions = async (params: { coveyTownID: string, userName: string, avatar: string }) => {
         fireEvent.change(userNameField, { target: { value: params.userName } });
         await waitFor(() => {
           expect(userNameField.value)
@@ -148,6 +150,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
       it('includes a connect button, which calls Video.setup, doLogin, and connect with the entered username and coveyTownID (public town)', async () => {
         const coveyTownID = nanoid();
         const userName = nanoid();
+        const avatar = '';
 
         // Configure mocks
         mockVideoSetup.mockReset();
@@ -158,12 +161,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
         await joinTownWithOptions({
           coveyTownID,
-          userName
+          userName,
+          avatar
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID));
+          .toBeCalledWith(userName, coveyTownID, avatar));
         await waitFor(() => expect(doLoginMock)
           .toBeCalledWith({ providerVideoToken: videoToken }));
         await waitFor(() => expect(mockConnect)
@@ -172,9 +176,12 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to join town" if the username is empty', async () => {
         const coveyTownID = nanoid();
+        const avatar = '';
+        
         await joinTownWithOptions({
           coveyTownID,
-          userName: ''
+          userName: '',
+          avatar
         });
         await waitFor(() => expect(mockToast)
           .toBeCalledWith({
@@ -185,9 +192,12 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to join town" if the TownID is empty', async () => {
         const userName = nanoid();
+        const avatar = '';
+
         await joinTownWithOptions({
           coveyTownID: '',
-          userName
+          userName,
+          avatar
         });
         await waitFor(() => expect(mockToast)
           .toBeCalledWith({
@@ -200,6 +210,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
       it('displays an error toast "Unable to connect to Towns Service" if an error occurs', async () => {
         const coveyTownID = nanoid();
         const userName = nanoid();
+        const avatar = '';
         const errorMessage = `Err${nanoid()}`;
 
         // Variant one: throw error in Video.setup
@@ -213,12 +224,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
         await joinTownWithOptions({
           coveyTownID,
-          userName
+          userName,
+          avatar
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID));
+          .toBeCalledWith(userName, coveyTownID, avatar));
         await waitFor(() => expect(doLoginMock)
           .not
           .toBeCalledWith({ providerVideoToken: videoToken }));
@@ -243,12 +255,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
         await joinTownWithOptions({
           coveyTownID,
-          userName
+          userName,
+          avatar
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID));
+          .toBeCalledWith(userName, coveyTownID, avatar));
         await waitFor(() => expect(doLoginMock)
           .toBeCalledWith({ providerVideoToken: videoToken }));
         await waitFor(() => expect(mockConnect)
@@ -273,12 +286,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
         await joinTownWithOptions({
           coveyTownID,
-          userName
+          userName,
+          avatar
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID));
+          .toBeCalledWith(userName, coveyTownID, avatar));
         await waitFor(() => expect(doLoginMock)
           .toBeCalledWith({ providerVideoToken: videoToken }));
         await waitFor(() => expect(mockConnect)
@@ -297,6 +311,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
       it('includes a connect button in each row, which calls Video.setup, doLogin, and connect with the entered username and coveyTownID corresponding to that town', async () => {
         const rows = renderData.getAllByRole('row');
+        const avatar = '';
         for (const town of expectedTowns.towns) {
           if (town.currentOccupancy < town.maximumOccupancy) {
             mockVideoSetup.mockReset();
@@ -317,7 +332,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID));
+                .toBeCalledWith(username, town.coveyTownID, avatar));
               await waitFor(() => expect(doLoginMock)
                 .toBeCalledWith({ providerVideoToken: videoToken }));
               await waitFor(() => expect(mockConnect)
@@ -388,6 +403,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to connect to Towns Service" if an error occurs', async () => {
         const rows = renderData.getAllByRole('row');
+        const avatar = '';
         for (const town of expectedTowns.towns) {
           if (town.currentOccupancy < town.maximumOccupancy) {
             // Test an error from video.setup
@@ -431,7 +447,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID));
+                .toBeCalledWith(username, town.coveyTownID, avatar));
               await waitFor(() => expect(doLoginMock)
                 .toBeCalledWith({ providerVideoToken: videoToken }));
               await waitFor(() => expect(mockToast)
@@ -456,7 +472,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID));
+                .toBeCalledWith(username, town.coveyTownID, avatar));
               await waitFor(() => expect(doLoginMock)
                 .toBeCalledWith({ providerVideoToken: videoToken }));
               await waitFor(() => expect(mockConnect)

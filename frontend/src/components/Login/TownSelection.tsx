@@ -38,7 +38,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const { connect } = useVideoContext();
   const { apiClient } = useCoveyAppState();
   const toast = useToast();
-  const avatars = ['misa', 'bido'];
+  const avatars = ['misa', 'bido', 'nina', 'lilo'];
   const preview = `../../assets/${avatars[avatarIndex]}-preview.png`;
 
   const updateTownListings = useCallback(() => {
@@ -181,6 +181,8 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
               </Flex>
               <Flex p="4">
                 <Box flex="1">
+                <Input name="avatarSelection" readonly placeholder="Avatar name"
+                       value={avatars[avatarIndex]}/>
                   <Button data-testid='updateAvatar'
                           onClick={() => handleAvatar(false)}>&#8592;</Button>
                   <text>&nbsp;&nbsp;&nbsp;&nbsp;{avatarIndex + 1}/{avatars.length}&nbsp;&nbsp;&nbsp;&nbsp;</text>

@@ -48,8 +48,8 @@ class CoveyGameScene extends Phaser.Scene {
     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
     this.load.atlas('misa-atlas', '/assets/atlas/misa-atlas.png', '/assets/atlas/misa-atlas.json');
     this.load.atlas('bido-atlas', '/assets/atlas/bido-atlas.png', '/assets/atlas/bido-atlas.json');
-
-    console.log(this.avatar);
+    this.load.atlas('lilo-atlas', '/assets/atlas/lilo-atlas.png', '/assets/atlas/lilo-atlas.json');
+    this.load.atlas('nina-atlas', '/assets/atlas/nina-atlas.png', '/assets/atlas/nina-atlas.json');
   }
 
   updatePlayersLocations(players: Player[]) {
@@ -128,10 +128,10 @@ class CoveyGameScene extends Phaser.Scene {
       myPlayer.label?.setX(player.location.x);
       myPlayer.label?.setY(player.location.y - 20);
       if (player.location.moving) {
-        sprite.anims.play(`${this.avatar}-${player.location.rotation}-walk`, true);
+        sprite.anims.play(`${player.avatar}-${player.location.rotation}-walk`, true);
       } else {
         sprite.anims.stop();
-        sprite.setTexture(`${this.avatar}-atlas`, `${player.avatar}-${player.location.rotation}`);
+        sprite.setTexture(`${player.avatar}-atlas`, `${player.avatar}-${player.location.rotation}`);
       }
     }
   }
