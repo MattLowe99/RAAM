@@ -12,7 +12,7 @@ The frontend implements video chat using the [Twilio Programmable Video](https:/
 
 A backend service (in the `services/roomService` directory) implements the application logic: tracking which "towns" are available to be joined, and the state of each of those towns.
 
-Our project adds features allowing users to select different town maps and avatars. We also have a feature that disables proximity, allowing everyone in the town to hear one another no matter how far they are. Additionally, we include the ability to disable video streaming to save bandwidth.
+Our project adds features allowing users to select different town maps and avatars. We also have a feature that disables proximity, allowing everyone in the town to hear one another no matter how far they are. Additionally, we include the ability to disable video streaming to save bandwidth. To expand on avatar customization, we also added different types of restrictions for customization which can be set when creating a new town.
 
 Our implementation does not alter the app setup and start procedure.
 
@@ -50,14 +50,10 @@ Create a `.env` file in the `frontend` directory, with the line: `REACT_APP_TOWN
 In the `frontend` directory, run `npm start` (again, you'll need to run `npm install` the very first time). After several moments (or minutes, depending on the speed of your machine), a browser will open with the frontend running locally.
 The frontend will automatically re-compile and reload in your browser if you change any files in the `frontend/src` directory.
 
-### Git Repository (private)
+### Git Repository
 
 https://github.com/MattLowe99/RAAM
-
-TODO: Add how to access here!!!
 
 ### Netlify Deployment Link
 
 https://infallible-elion-e86ce8.netlify.app/
-
-

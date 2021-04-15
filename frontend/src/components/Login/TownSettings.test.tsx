@@ -6,7 +6,7 @@ import { fireEvent, render, RenderResult, waitFor } from '@testing-library/react
 import { nanoid } from 'nanoid';
 import { TargetElement } from '@testing-library/user-event';
 import TownSettings from './TownSettings';
-import TownsServiceClient, { MapSelection } from '../../classes/TownsServiceClient';
+import TownsServiceClient, {MapSelection, SpriteRestriction} from '../../classes/TownsServiceClient';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
 
 const mockUseCoveyAppState = jest.fn(() => (Promise.resolve()));
@@ -41,6 +41,8 @@ function wrappedTownSettings() {
     mapID: MapSelection.Standard,
     enableVideo: true,
     enableProximity: true,
+    spriteRestriction: SpriteRestriction.allUsers,
+    restrictedSpriteName: '',
     currentTownID: '',
     currentTownFriendlyName: '',
     currentTownIsPubliclyListed: false,
@@ -95,6 +97,8 @@ describe('Part 4 - Town Settings', () => {
       friendlyName: nanoid(),
       isPubliclyListed: true,
       townID: nanoid(),
+      enableVideo: true,
+      enableProximity: true,
     }
     await openSettingsPane(params);
     await waitFor(() => expect(renderData.getByText(`Edit town ${params.friendlyName} (${params.townID})`))
@@ -109,6 +113,8 @@ describe('Part 4 - Town Settings', () => {
       friendlyName: nanoid(),
       isPubliclyListed: false,
       townID: nanoid(),
+      enableVideo: true,
+      enableProximity: true,
     }
     await openSettingsPane(params);
     await waitFor(() => expect(renderData.getByText(`Edit town ${params.friendlyName} (${params.townID})`))

@@ -1,6 +1,6 @@
 import CoveyTownController from './CoveyTownController';
 import { CoveyTownList } from '../CoveyTypes';
-import { MapSelection } from '../client/TownsServiceClient';
+import { MapSelection, SpriteRestriction } from '../client/TownsServiceClient';
 
 function passwordMatches(provided: string, expected: string): boolean {
   if (provided === expected) {
@@ -38,18 +38,17 @@ export default class CoveyTownsStore {
 	      mapID: townController.mapID,
 	      enableVideo: townController.enableVideo,
 	      enableProximity: townController.enableProximity,
+        spriteRestriction: townController.spriteRestriction,
+        restrictedSpriteName: townController.restrictedSpriteName,
       }));
   }
 
-  // createTown(friendlyName: string, isPubliclyListed: boolean): CoveyTownController {
-  // const newTown = new CoveyTownController(friendlyName, isPubliclyListed);
-  createTown(friendlyName: string, isPubliclyListed: boolean, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean): CoveyTownController {
-    const newTown = new CoveyTownController(friendlyName, isPubliclyListed, mapID, enableVideo, enableProximity);
+  createTown(friendlyName: string, isPubliclyListed: boolean, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, spriteRestriction: SpriteRestriction, restrictedSpriteName: string): CoveyTownController {
+    const newTown = new CoveyTownController(friendlyName, isPubliclyListed, mapID, enableVideo, enableProximity, spriteRestriction, restrictedSpriteName);
     this._towns.push(newTown);
     return newTown;
   }
 
-  // updateTown(coveyTownID: string, coveyTownPassword: string, friendlyName?: string, makePublic?: boolean): boolean {
   updateTown(coveyTownID: string, coveyTownPassword: string, friendlyName?: string, makePublic?: boolean, mapID?: MapSelection, enableVideo?: boolean, enableProximity?: boolean): boolean {
     const existingTown = this.getControllerForTown(coveyTownID);
     if (existingTown && passwordMatches(coveyTownPassword, existingTown.townUpdatePassword)) {

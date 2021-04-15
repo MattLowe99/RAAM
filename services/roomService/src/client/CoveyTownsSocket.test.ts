@@ -1,25 +1,27 @@
 import Express from 'express';
 import CORS from 'cors';
 import http from 'http';
-import { nanoid } from 'nanoid';
-import { AddressInfo } from 'net';
+import {nanoid} from 'nanoid';
+import {AddressInfo} from 'net';
 import * as TestUtils from './TestUtils';
 
-import { UserLocation } from '../CoveyTypes';
-import TownsServiceClient, { MapSelection } from './TownsServiceClient';
+import {UserLocation} from '../CoveyTypes';
+import TownsServiceClient, {MapSelection, SpriteRestriction} from './TownsServiceClient';
 import addTownRoutes from '../router/towns';
 
 type TestTownData = {
   friendlyName: string, coveyTownID: string,
-  isPubliclyListed: boolean, townUpdatePassword: string,
-  mapID: MapSelection, enableVideo: boolean, enableProximity: boolean
+  isPubliclyListed: boolean, townUpdatePassword: string
+  mapID: MapSelection, enableVideo: boolean, enableProximity: boolean,
+  spriteRestriction: SpriteRestriction, restrictedSpriteName: string,
+  spriteRestrictionPassword: string,
 };
 
 describe('TownServiceApiSocket', () => {
   let server: http.Server;
   let apiClient: TownsServiceClient;
 
-  async function createTownForTesting(mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, friendlyNameToUse?: string, isPublic = false): Promise<TestTownData> {
+  async function createTownForTesting(mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, spriteRestriction: SpriteRestriction, restrictedSpriteName: string, friendlyNameToUse?: string, isPublic = false): Promise<TestTownData> {
     const friendlyName = friendlyNameToUse !== undefined ? friendlyNameToUse :
       `${isPublic ? 'Public' : 'Private'}TestingTown=${nanoid()}`;
     const ret = await apiClient.createTown({
@@ -28,15 +30,20 @@ describe('TownServiceApiSocket', () => {
       mapID,
       enableVideo,
       enableProximity,
+      spriteRestriction,
+      restrictedSpriteName,
     });
     return {
       friendlyName,
       isPubliclyListed: isPublic,
       coveyTownID: ret.coveyTownID,
       townUpdatePassword: ret.coveyTownPassword,
+      spriteRestrictionPassword: ret.spriteRestrictionPassword,
       mapID,
       enableVideo,
       enableProximity,
+      spriteRestriction,
+      restrictedSpriteName,
     };
   }
 
@@ -59,27 +66,23 @@ describe('TownServiceApiSocket', () => {
     TestUtils.cleanupSockets();
   });
   it('Rejects invalid CoveyTownIDs, even if otherwise valid session token', async () => {
-    const town = await createTownForTesting(MapSelection.Standard, true, true);
-    // const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
+    const town = await createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
     const {socketDisconnected} = TestUtils.createSocketClient(server, joinData.coveySessionToken, nanoid());
     await socketDisconnected;
   });
   it('Rejects invalid session tokens, even if otherwise valid town id', async () => {
-    const town = await createTownForTesting(MapSelection.Standard, true, true);
-    // await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
+    const town = await createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
     const {socketDisconnected} = TestUtils.createSocketClient(server, nanoid(), town.coveyTownID);
     await socketDisconnected;
   });
   it('Dispatches movement updates to all clients in the same town', async () => {
-    const town = await createTownForTesting(MapSelection.Standard, true, true);
-    // const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    // const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    // const joinData3 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData3 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
+    const town = await createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+
+    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
+    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
+    const joinData3 = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
     const socketSender = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID).socket;
     const {playerMoved} = TestUtils.createSocketClient(server, joinData2.coveySessionToken, town.coveyTownID);
     const {playerMoved: playerMoved2} = TestUtils.createSocketClient(server, joinData3.coveySessionToken, town.coveyTownID);
@@ -91,9 +94,8 @@ describe('TownServiceApiSocket', () => {
   });
   it('Invalidates the user session after disconnection', async () => {
     // This test will timeout if it fails - it will never reach the expectation
-    const town = await createTownForTesting(MapSelection.Standard, true, true);
-    // const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
+    const town = await createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
     const {socket, socketConnected} = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     await socketConnected;
     socket.close();
@@ -102,11 +104,9 @@ describe('TownServiceApiSocket', () => {
     expect(secondTryWithSameToken.disconnected).toBe(true);
   });
   it('Informs all new players when a player joins', async () => {
-    const town = await createTownForTesting(MapSelection.Standard, true, true);
-    // const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    // const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
+    const town = await createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
+    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
     const {socketConnected, newPlayerJoined} = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     const {
       socketConnected: connectPromise2,
@@ -115,21 +115,19 @@ describe('TownServiceApiSocket', () => {
     await Promise.all([socketConnected, connectPromise2]);
     const newJoinerName = nanoid();
 
-    // await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: newJoinerName, spriteID: nanoid() });
-    await apiClient.joinTown({ coveyTownID: town.coveyTownID, userName: newJoinerName });
+    await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: newJoinerName, spriteRestrictionPassword: '' });
     expect((await newPlayerJoined)._userName).toBe(newJoinerName);
     expect((await newPlayerPromise2)._userName).toBe(newJoinerName);
 
   });
   it('Informs all players when a player disconnects', async () => {
-    const town = await createTownForTesting(MapSelection.Standard, true, true);
-    // const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    // const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
+    const town = await createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+
+    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
+    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
     const userWhoLeaves = nanoid();
-    // const joinDataWhoLeaves = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: userWhoLeaves, spriteID: nanoid() });
-    const joinDataWhoLeaves = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: userWhoLeaves });
+
+    const joinDataWhoLeaves = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: userWhoLeaves, spriteRestrictionPassword: ''});
     const {socketConnected, playerDisconnected} = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     const {socketConnected: connectPromise2, playerDisconnected: playerDisconnectPromise2} = TestUtils.createSocketClient(server, joinData2.coveySessionToken, town.coveyTownID);
     const {socket: socketWhoLeaves, socketConnected: connectPromise3} = TestUtils.createSocketClient(server, joinDataWhoLeaves.coveySessionToken, town.coveyTownID);
@@ -140,11 +138,9 @@ describe('TownServiceApiSocket', () => {
 
   });
   it('Informs all players when the town is destroyed', async () => {
-    const town = await createTownForTesting(MapSelection.Standard, true, true);
-    // const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    // const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid(), spriteID: nanoid() });
-    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
-    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, userName: nanoid() });
+    const town = await createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+    const joinData = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
+    const joinData2 = await apiClient.joinTown({coveyTownID: town.coveyTownID, avatarName: 'misa', userName: nanoid(), spriteRestrictionPassword: ''});
     const {socketDisconnected, socketConnected} = TestUtils.createSocketClient(server, joinData.coveySessionToken, town.coveyTownID);
     const {socketDisconnected: disconnectPromise2, socketConnected: connectPromise2} = TestUtils.createSocketClient(server, joinData2.coveySessionToken, town.coveyTownID);
     await Promise.all([socketConnected, connectPromise2]);

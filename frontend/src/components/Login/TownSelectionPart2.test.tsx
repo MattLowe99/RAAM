@@ -5,7 +5,7 @@ import { ChakraProvider } from '@chakra-ui/react'
 import { fireEvent, render, RenderResult, waitFor, within } from '@testing-library/react'
 import userEvent, { TargetElement } from '@testing-library/user-event'
 import { nanoid } from 'nanoid';
-import TownsServiceClient, { TownListResponse, MapSelection } from '../../classes/TownsServiceClient';
+import TownsServiceClient, {TownListResponse, MapSelection, SpriteRestriction} from '../../classes/TownsServiceClient';
 import TownSelection from './TownSelection';
 import Video from '../../classes/Video/Video';
 import CoveyAppContext from '../../contexts/CoveyAppContext';
@@ -42,6 +42,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 0,
       maximumOccupancy: 1,
     },
@@ -51,6 +53,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 2,
       maximumOccupancy: 10,
     },
@@ -60,6 +64,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 1,
       maximumOccupancy: 1,
     },
@@ -69,6 +75,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 8,
       maximumOccupancy: 8,
     },
@@ -78,6 +86,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 9,
       maximumOccupancy: 5,
     },
@@ -87,6 +97,8 @@ const listTowns = (suffix: string) => Promise.resolve({
       mapID: MapSelection.Standard,
       enableVideo: true,
       enableProximity: true,
+      spriteRestriction: SpriteRestriction.allUsers,
+      restrictedSpriteName: '',
       currentOccupancy: 99,
       maximumOccupancy: 100,
     },
@@ -106,6 +118,8 @@ function wrappedTownSelection() {
     mapID: MapSelection.Standard,
     enableVideo: true,
     enableProximity: true,
+    spriteRestriction: SpriteRestriction.allUsers,
+    restrictedSpriteName: '',
     currentTownID: '',
     currentTownIsPubliclyListed: false,
     currentTownFriendlyName: '',
@@ -154,7 +168,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
   describe('Part 2 - Joining existing towns', () => {
 
     describe('Joining an existing town by ID', () => {
-      const joinTownWithOptions = async (params: { coveyTownID: string, userName: string, avatarName: string }) => {
+      const joinTownWithOptions = async (params: { coveyTownID: string, userName: string, avatarName: string, spriteRestrictionPassword: string }) => {
         fireEvent.change(userNameField, { target: { value: params.userName } });
         await waitFor(() => {
           expect(userNameField.value)
@@ -181,12 +195,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName,
-          avatarName: 'misa'
+          avatarName: 'misa',
+          spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa'));
+          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
         await waitFor(() => expect(doLoginMock)
           .toBeCalledWith({ providerVideoToken: videoToken, mapID: mid, enableVideo: true, enableProximity: true }, mid, true, true));
       await waitFor(() => expect(mockConnect)
@@ -198,7 +213,8 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName: '',
-          avatarName: 'misa'
+          avatarName: 'misa',
+          spriteRestrictionPassword: '',
         });
         await waitFor(() => expect(mockToast)
           .toBeCalledWith({
@@ -212,7 +228,8 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID: '',
           userName,
-          avatarName: 'misa'
+          avatarName: 'misa',
+          spriteRestrictionPassword: ''
         });
         await waitFor(() => expect(mockToast)
           .toBeCalledWith({
@@ -240,13 +257,14 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
         await joinTownWithOptions({
           coveyTownID,
-          userName, 
-          avatarName: 'misa'
+          userName,
+          avatarName: 'misa',
+          spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa'));
+          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
         await waitFor(() => expect(doLoginMock)
           .not
           // .toBeCalledWith({ providerVideoToken: videoToken }));
@@ -275,12 +293,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName,
-          avatarName: 'misa'
+          avatarName: 'misa',
+          spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa'));
+          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
         await waitFor(() => expect(doLoginMock)
           // .toBeCalledWith({ providerVideoToken: videoToken }));
           .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid2, enableVideo: true, enableProximity: true }, mid2, true, true));
@@ -310,12 +329,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName,
-          avatarName: 'misa'
+          avatarName: 'misa',
+          spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa'));
+          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
         await waitFor(() => expect(doLoginMock)
           // .toBeCalledWith({ providerVideoToken: videoToken }));
           // .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid3, enableVideo: true, enableProximity: true }, mid3, true, true));
@@ -358,7 +378,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID, 'misa'));
+                .toBeCalledWith(username, town.coveyTownID, 'misa', ''));
               await waitFor(() => expect(doLoginMock)
                 .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid, enableVideo: true, enableProximity: true }, mid, true, true));
                 // .toBeCalledWith({ providerVideoToken: videoToken }));
@@ -475,7 +495,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID, 'misa'));
+                .toBeCalledWith(username, town.coveyTownID, 'misa', ''));
               await waitFor(() => expect(doLoginMock)
                 .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid2, enableVideo: true, enableProximity: true }, mid2, true, true));
                 // .toBeCalledWith({ providerVideoToken: videoToken }));
@@ -503,7 +523,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID, 'misa'));
+                .toBeCalledWith(username, town.coveyTownID, 'misa', ''));
               await waitFor(() => expect(doLoginMock)
               .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid3, enableVideo: true, enableProximity: true }, mid3, true, true));
                 // .toBeCalledWith({ providerVideoToken: videoToken }));

@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, {useCallback, useState} from 'react';
 
 import {
   Button,
   Checkbox,
+  Flex,
   FormControl,
   FormLabel,
   Input,
@@ -13,24 +14,22 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
   Radio,
   RadioGroup,
   SimpleGrid,
-  Flex, 
+  useDisclosure,
   useToast
 } from '@chakra-ui/react';
 import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
 import useMaybeVideo from '../../hooks/useMaybeVideo';
-import { MapSelection } from '../../CoveyTypes';
+import {MapSelection} from '../../CoveyTypes';
 
 const TownSettings: React.FunctionComponent = () => {
   const {isOpen, onOpen, onClose} = useDisclosure()
   const video = useMaybeVideo()
-  const {apiClient, currentTownID, currentTownFriendlyName, currentTownIsPubliclyListed, mapID, enableVideo, enableProximity} = useCoveyAppState();
-  // const {apiClient, currentTownID, currentTownFriendlyName, currentTownIsPubliclyListed} = useCoveyAppState();
+  const {apiClient, currentTownID, currentTownFriendlyName, currentTownIsPubliclyListed, mapID, enableVideo, enableProximity } = useCoveyAppState();
   const [friendlyName, setFriendlyName] = useState<string>(currentTownFriendlyName);
   const [isPubliclyListed, setIsPubliclyListed] = useState<boolean>(currentTownIsPubliclyListed);
   const [roomUpdatePassword, setRoomUpdatePassword] = useState<string>('');
@@ -93,7 +92,7 @@ const TownSettings: React.FunctionComponent = () => {
           isPubliclyListed,
           mapID: mapIDE,
           enableVideo: videoEnabled,
-          enableProximity: proximityEnabled,
+          enableProximity: proximityEnabled
         });
         toast({
           title: 'Town updated',

@@ -5,7 +5,7 @@ import Player from '../types/Player';
 import PlayerSession from '../types/PlayerSession';
 import TwilioVideo from './TwilioVideo';
 import IVideoClient from './IVideoClient';
-import { MapSelection } from '../client/TownsServiceClient';
+import { MapSelection, SpriteRestriction } from '../client/TownsServiceClient';
 
 const friendlyNanoID = customAlphabet('1234567890ABCDEF', 8);
 
@@ -75,6 +75,26 @@ export default class CoveyTownController {
     this._enableProximity = value;
   }
 
+  get spriteRestrictionPassword(): string {
+    return this._spriteRestrictionPassword;
+  }
+
+  get spriteRestriction(): SpriteRestriction {
+    return this._spriteRestriction;
+  }
+
+  set spriteRestriction(value: SpriteRestriction) {
+    this._spriteRestriction = value;
+  }
+
+  get restrictedSpriteName(): string {
+    return this._restrictedSpriteName;
+  }
+
+  set restrictedSpriteName(value: string) {
+    this._restrictedSpriteName = value;
+  }
+
   /** The list of players currently in the town * */
   private _players: Player[] = [];
 
@@ -100,11 +120,16 @@ export default class CoveyTownController {
   private _mapID: MapSelection;
 
   private _enableVideo: boolean;
-  
+
   private _enableProximity: boolean;
 
-  constructor(friendlyName: string, isPubliclyListed: boolean, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean) {
-  // constructor(friendlyName: string, isPubliclyListed: boolean) {
+  private readonly _spriteRestrictionPassword: string;
+
+  private _spriteRestriction: SpriteRestriction;
+
+  private _restrictedSpriteName: string;
+
+  constructor(friendlyName: string, isPubliclyListed: boolean, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, spriteRestriction: SpriteRestriction, restrictedSpriteName: string) {
     this._coveyTownID = (process.env.DEMO_TOWN_ID === friendlyName ? friendlyName : friendlyNanoID());
     this._capacity = 50;
     this._townUpdatePassword = nanoid(24);
@@ -113,6 +138,9 @@ export default class CoveyTownController {
     this._mapID = mapID;
     this._enableVideo = enableVideo;
     this._enableProximity = enableProximity;
+    this._spriteRestrictionPassword = nanoid(24);
+    this._spriteRestriction = spriteRestriction;
+    this._restrictedSpriteName = restrictedSpriteName;
   }
 
   /**

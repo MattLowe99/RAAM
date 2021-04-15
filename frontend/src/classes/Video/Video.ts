@@ -1,4 +1,4 @@
-import { MapSelection } from '../../CoveyTypes';
+import { MapSelection, SpriteRestriction } from '../../CoveyTypes';
 import DebugLogger from '../DebugLogger';
 import TownsServiceClient, { TownJoinResponse } from '../TownsServiceClient';
 
@@ -23,6 +23,8 @@ export default class Video {
 
   private _avatarName: string;
 
+  private _spriteRestrictionPassword: string;
+
   private _townFriendlyName: string | undefined;
 
   private _isPubliclyListed: boolean | undefined;
@@ -33,14 +35,21 @@ export default class Video {
 
   private _enableProximity: boolean | undefined;
 
+  private _spriteRestriction: SpriteRestriction | undefined;
+
+  private _restrictedSpriteName: string | undefined;
+
+  private _spritePasswordOverride: boolean | undefined;
+
   pauseGame: () => void = ()=>{};
 
   unPauseGame: () => void = ()=>{};
 
-  constructor(userName: string, coveyTownID: string, avatarName: string) {
+  constructor(userName: string, coveyTownID: string, avatarName: string, spriteRestrictionPassword: string) {
     this._userName = userName;
     this._coveyTownID = coveyTownID;
     this._avatarName = avatarName;
+    this._spriteRestrictionPassword = spriteRestrictionPassword;
   }
 
   get isPubliclyListed(): boolean {
@@ -78,7 +87,21 @@ export default class Video {
     return this._enableProximity;
   }
 
+  get spritePasswordOverride(): boolean | undefined {
+    return this._spritePasswordOverride;
+  }
+
+  get spriteRestriction(): SpriteRestriction | undefined {
+    return this._spriteRestriction;
+  }
+
+  get restrictedSpriteName(): string | undefined {
+    return this._restrictedSpriteName;
+  }
+
   private async setup(): Promise<TownJoinResponse> {
+    this.initialisePromise = null;
+
     if (!this.initialisePromise) {
       this.initialisePromise = new Promise((resolve, reject) => {
         // Request our token to join the town
@@ -86,6 +109,7 @@ export default class Video {
           coveyTownID: this._coveyTownID,
           userName: this._userName,
           avatarName: this._avatarName,
+          spriteRestrictionPassword: this._spriteRestrictionPassword,
         })
           .then((result) => {
             this.sessionToken = result.coveySessionToken;
@@ -95,6 +119,9 @@ export default class Video {
             this._mapID = result.mapID;
             this._enableVideo = result.enableVideo;
             this._enableProximity = result.enableProximity;
+            this._spritePasswordOverride = result.spritePasswordOverride;
+            this._spriteRestriction = result.spriteRestriction;
+            this._restrictedSpriteName = result.restrictedSpriteName;
             resolve(result);
           })
           .catch((err) => {
@@ -128,12 +155,10 @@ export default class Video {
     return this.teardownPromise ?? Promise.resolve();
   }
 
-  public static async setup(username: string, coveyTownID: string, avatarName: string): Promise<TownJoinResponse> {
+  public static async setup(username: string, coveyTownID: string, avatarName: string, spriteRestrictionPassword: string): Promise<TownJoinResponse> {
     let result = null;
 
-    if (!Video.video) {
-      Video.video = new Video(username, coveyTownID, avatarName);
-    }
+    Video.video = new Video(username, coveyTownID, avatarName, spriteRestrictionPassword);
 
     try {
       result = await Video.video.setup();

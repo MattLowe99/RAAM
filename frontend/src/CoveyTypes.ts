@@ -25,6 +25,8 @@ export type CoveyAppState = {
   mapID: MapSelection,
   enableVideo: boolean,
   enableProximity: boolean,
+  spriteRestriction: SpriteRestriction,
+  restrictedSpriteName: string,
   players: Player[],
   currentLocation: UserLocation,
   nearbyPlayers: NearbyPlayers,
@@ -38,4 +40,10 @@ export enum MapSelection {
   Conference,
   Classroom,
   Party
+}
+
+export enum SpriteRestriction {
+  allUsers,
+  passwordUsers,
+  noUsers,
 }
