@@ -397,7 +397,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <Box maxH="500px" overflowY="scroll">
               <Table>
                 <TableCaption placement="bottom">Publicly Listed Towns</TableCaption>
-                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Map ID</Th><Th>Video</Th><Th>Proximity</Th><Th>Activity</Th><Th>Avatar Mode</Th></Tr></Thead>
+                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Map ID</Th><Th>Video</Th><Th>Proximity</Th><Th>Avatar Mode</Th><Th>Activity</Th></Tr></Thead>
                 <Tbody>
                   {currentPublicTowns?.map((town) => (
                     <Tr key={town.coveyTownID}><Td role='cell'>{town.friendlyName}</Td><Td
