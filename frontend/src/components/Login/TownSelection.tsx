@@ -90,9 +90,6 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       }
       const initData = await Video.setup(userName, coveyRoomID, avatar, password);
 
-      console.log(initData);
-      console.log(initData.spritePasswordOverride);
-      console.log(password);
       if (initData.spriteRestriction === SpriteRestriction.passwordUsers) {
         if (!initData.spritePasswordOverride && initData.restrictedSpriteName !== avatars[index]) {
           toast({
@@ -158,6 +155,14 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       toast({
         title: 'Unable to create town',
         description: 'Please enter a town name',
+        status: 'error',
+      });
+      return;
+    }
+    if (restrictedSprite !== avatars[index]) {
+      toast({
+        title: 'Unable to create town',
+        description: 'Please set your selected avatar to match restricted avatar choice.',
         status: 'error',
       });
       return;
