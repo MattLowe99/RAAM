@@ -198,7 +198,7 @@ export async function townDeleteHandler(requestData: TownDeleteRequest): Promise
 
 export async function townUpdateHandler(requestData: TownUpdateRequest): Promise<ResponseEnvelope<Record<string, null>>> {
   const townsStore = CoveyTownsStore.getInstance();
-  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed, requestData.mapID, requestData.enableVideo, requestData.enableProximity);
+  const success = townsStore.updateTown(requestData.coveyTownID, requestData.coveyTownPassword, requestData.friendlyName, requestData.isPubliclyListed, requestData.mapID, requestData.enableVideo, requestData.enableProximity, requestData.spriteRestriction, requestData.restrictedSpriteName);
   return {
     isOK: success,
     response: {},

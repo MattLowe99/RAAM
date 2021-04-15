@@ -9,7 +9,7 @@ import { MuiThemeProvider } from '@material-ui/core/styles';
 import assert from 'assert';
 import WorldMap from './components/world/WorldMap';
 import VideoOverlay from './components/VideoCall/VideoOverlay/VideoOverlay';
-import { CoveyAppState, NearbyPlayers, MapSelection } from './CoveyTypes';
+import { CoveyAppState, NearbyPlayers, MapSelection, SpriteRestriction } from './CoveyTypes';
 import VideoContext from './contexts/VideoContext';
 import Login from './components/Login/Login';
 import CoveyAppContext from './contexts/CoveyAppContext';
@@ -27,7 +27,7 @@ import TownsServiceClient, { TownJoinResponse } from './classes/TownsServiceClie
 import Video from './classes/Video/Video';
 
 type CoveyAppUpdate =
-  | { action: 'doConnect'; data: { userName: string, townFriendlyName: string, townID: string,townIsPubliclyListed:boolean, sessionToken: string, myPlayerID: string, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, socket: Socket, players: Player[], emitMovement: (location: UserLocation) => void } }
+  | { action: 'doConnect'; data: { userName: string, townFriendlyName: string, townID: string,townIsPubliclyListed:boolean, sessionToken: string, myPlayerID: string, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, spriteRestriction: SpriteRestriction, restrictedSpriteName: string, socket: Socket, players: Player[], emitMovement: (location: UserLocation) => void } }
   | { action: 'addPlayer'; player: Player }
   | { action: 'playerMoved'; player: Player }
   | { action: 'playerDisconnect'; player: Player }
@@ -48,6 +48,8 @@ function defaultAppState(): CoveyAppState {
     mapID: MapSelection.Standard,
     enableVideo: true,
     enableProximity: true,
+    spriteRestriction: SpriteRestriction.allUsers,
+    restrictedSpriteName: '',
     socket: null,
     currentLocation: {
       x: 0, y: 0, rotation: 'front', moving: false,
@@ -67,6 +69,8 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     mapID: state.mapID,
     enableVideo: state.enableVideo,
     enableProximity: state.enableProximity,
+    spriteRestriction: state.spriteRestriction,
+    restrictedSpriteName: state.restrictedSpriteName,
     players: state.players,
     currentLocation: state.currentLocation,
     nearbyPlayers: state.nearbyPlayers,
@@ -106,6 +110,8 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.mapID = update.data.mapID;
       nextState.enableVideo = update.data.enableVideo;
       nextState.enableProximity = update.data.enableProximity;
+      nextState.spriteRestriction = update.data.spriteRestriction;
+      nextState.restrictedSpriteName = update.data.restrictedSpriteName;
       nextState.currentTownFriendlyName = update.data.townFriendlyName;
       nextState.currentTownID = update.data.townID;
       nextState.currentTownIsPubliclyListed = update.data.townIsPubliclyListed;
@@ -125,7 +131,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
         nextState.players = nextState.players.concat([update.player]);
       }
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-        nextState.currentLocation, nextState.enableProximity);    
+        nextState.currentLocation, nextState.enableProximity);
       // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
       //   nextState.currentLocation);
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
@@ -135,7 +141,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
     case 'weMoved':
       nextState.currentLocation = update.location;
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-        nextState.currentLocation, nextState.enableProximity);    
+        nextState.currentLocation, nextState.enableProximity);
       // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
       //   nextState.currentLocation);
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
@@ -147,7 +153,7 @@ function appStateReducer(state: CoveyAppState, update: CoveyAppUpdate): CoveyApp
       nextState.players = nextState.players.filter((player) => player.id !== update.player.id);
 
       nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
-        nextState.currentLocation, nextState.enableProximity);    
+        nextState.currentLocation, nextState.enableProximity);
       // nextState.nearbyPlayers = calculateNearbyPlayers(nextState.players,
       //   nextState.currentLocation);
       if (samePlayers(nextState.nearbyPlayers, state.nearbyPlayers)) {
@@ -211,6 +217,8 @@ async function GameController(initData: TownJoinResponse, mapID: MapSelection, e
       mapID: mid,
       enableVideo,
       enableProximity,
+      spriteRestriction: initData.spriteRestriction,
+      restrictedSpriteName: initData.restrictedSpriteName,
       townIsPubliclyListed: video.isPubliclyListed,
       emitMovement,
       socket,

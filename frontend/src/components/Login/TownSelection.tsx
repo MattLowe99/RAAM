@@ -159,7 +159,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       });
       return;
     }
-    if (restrictedSprite !== avatars[index]) {
+    if (spriteCustom !== SpriteRestriction.allUsers && restrictedSprite !== avatars[index]) {
       toast({
         title: 'Unable to create town',
         description: 'Please set your selected avatar to match restricted avatar choice.',

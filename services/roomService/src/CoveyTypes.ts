@@ -18,6 +18,5 @@ enum SpriteRestriction {
   passwordUsers,
   noUsers,
 }
-// export type CoveyTownList = { friendlyName: string; coveyTownID: string; currentOccupancy: number; maximumOccupancy: number }[];
-export type CoveyTownList = { friendlyName: string; coveyTownID: string; currentOccupancy: number; maximumOccupancy: number, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean }[];
+export type CoveyTownList = { friendlyName: string; coveyTownID: string; currentOccupancy: number; maximumOccupancy: number, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, spriteRestriction: SpriteRestriction, restrictedSpriteName: string }[];
 
