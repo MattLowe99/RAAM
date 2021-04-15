@@ -11,11 +11,13 @@ export default class Player {
 
   public label?: Phaser.GameObjects.Text;
 
-  constructor(id: string, userName: string, location: UserLocation, avatar: string) {
+  private readonly defaultAvatar = 'misa';
+
+  constructor(id: string, userName: string, location: UserLocation, avatar?: string) {
     this._id = id;
     this._userName = userName;
     this.location = location;
-    this._avatar = avatar;
+    this._avatar = avatar || this.defaultAvatar;
   }
 
   get userName(): string {

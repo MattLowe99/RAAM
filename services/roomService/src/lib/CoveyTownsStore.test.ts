@@ -1,7 +1,8 @@
-import { nanoid } from 'nanoid';
+import {nanoid} from 'nanoid';
 import CoveyTownsStore from './CoveyTownsStore';
 import CoveyTownListener from '../types/CoveyTownListener';
 import Player from '../types/Player';
+import {MapSelection, SpriteRestriction} from '../client/TownsServiceClient';
 
 const mockCoveyListenerTownDestroyed = jest.fn();
 const mockCoveyListenerOtherFns = jest.fn();
@@ -23,11 +24,11 @@ function mockCoveyListener(): CoveyTownListener {
   };
 }
 
-function createTownForTesting(friendlyNameToUse?: string, isPublic = false) {
+function createTownForTesting( mapID: MapSelection, enableVideo: boolean, enableProximity: boolean, spriteRestriction: SpriteRestriction, restrictedSpriteName: string, friendlyNameToUse?: string, isPublic = false) {
   const friendlyName = friendlyNameToUse !== undefined ? friendlyNameToUse :
     `${isPublic ? 'Public' : 'Private'}TestingTown=${nanoid()}`;
   return CoveyTownsStore.getInstance()
-    .createTown(friendlyName, isPublic);
+    .createTown(friendlyName, isPublic, mapID, enableVideo, enableProximity, spriteRestriction, restrictedSpriteName);
 }
 
 describe('CoveyTownsStore', () => {
@@ -43,9 +44,9 @@ describe('CoveyTownsStore', () => {
   });
 
   describe('createTown', () => {
-    it('Should allow multiple towns with the same friendlyName', () => {
-      const firstTown = createTownForTesting();
-      const secondTown = createTownForTesting(firstTown.friendlyName);
+    it('Should allow multiple towns with the same friendlyName, mapId, enableVideo, enableProximity, spriteRestriction, and restrictedSpriteName', () => {
+      const firstTown = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
+      const secondTown = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa', firstTown.friendlyName);
       expect(firstTown)
         .not
         .toBe(secondTown);
@@ -54,12 +55,22 @@ describe('CoveyTownsStore', () => {
       expect(firstTown.coveyTownID)
         .not
         .toBe(secondTown.coveyTownID);
+      expect(firstTown.mapID)
+        .toBe(secondTown.mapID);
+      expect(firstTown.enableVideo)
+        .toBe(secondTown.enableVideo);
+      expect(firstTown.enableProximity)
+        .toBe(secondTown.enableProximity);
+      expect(firstTown.spriteRestriction)
+        .toBe(secondTown.spriteRestriction);
+      expect(firstTown.restrictedSpriteName)
+        .toBe(secondTown.restrictedSpriteName);
     });
   });
 
   describe('getControllerForTown', () => {
     it('Should return the same controller on repeated calls', async () => {
-      const firstTown = createTownForTesting();
+      const firstTown = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
       expect(firstTown)
         .toBe(CoveyTownsStore.getInstance()
           .getControllerForTown(firstTown.coveyTownID));
@@ -71,7 +82,7 @@ describe('CoveyTownsStore', () => {
 
   describe('updateTown', () => {
     it('Should check the password before updating any value', () => {
-      const town = createTownForTesting();
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
       const { friendlyName } = town;
       const res = CoveyTownsStore.getInstance()
         .updateTown(town.coveyTownID, 'abcd', 'newName', true);
@@ -84,7 +95,7 @@ describe('CoveyTownsStore', () => {
 
     });
     it('Should fail if the townID does not exist', async () => {
-      const town = createTownForTesting();
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
       const { friendlyName } = town;
 
       const res = CoveyTownsStore.getInstance()
@@ -100,7 +111,7 @@ describe('CoveyTownsStore', () => {
     it('Should update the town parameters', async () => {
 
       // First try with just a visiblity change
-      const town = createTownForTesting();
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
       const { friendlyName } = town;
       const res = CoveyTownsStore.getInstance()
         .updateTown(town.coveyTownID, town.townUpdatePassword, undefined, true);
@@ -131,12 +142,25 @@ describe('CoveyTownsStore', () => {
         .toBe(false);
       expect(town.friendlyName)
         .toBe(friendlyName);
+
+      // Now try to change both video and proximity and mapID
+      const res4 = CoveyTownsStore.getInstance()
+        .updateTown(town.coveyTownID, town.townUpdatePassword, friendlyName, false, MapSelection.Conference, false, false);
+      expect(res4)
+        .toBe(true);
+      expect(town.isPubliclyListed)
+        .toBe(false);
+      expect(town.friendlyName)
+        .toBe(friendlyName);
+      expect(town.mapID).toBe(MapSelection.Conference);
+      expect(town.enableVideo).toBe(false);
+      expect(town.enableProximity).toBe(false);
     });
   });
 
   describe('deleteTown', () => {
     it('Should check the password before deleting the town', () => {
-      const town = createTownForTesting();
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
       const res = CoveyTownsStore.getInstance()
         .deleteTown(town.coveyTownID, `${town.townUpdatePassword}*`);
       expect(res)
@@ -149,7 +173,7 @@ describe('CoveyTownsStore', () => {
         .toBe(false);
     });
     it('Should disconnect all players', async () => {
-      const town = createTownForTesting();
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa');
       town.addTownListener(mockCoveyListener());
       town.addTownListener(mockCoveyListener());
       town.addTownListener(mockCoveyListener());
@@ -165,7 +189,7 @@ describe('CoveyTownsStore', () => {
 
   describe('listTowns', () => {
     it('Should include public towns', async () => {
-      const town = createTownForTesting(undefined, true);
+      const town = createTownForTesting( MapSelection.Standard, false, true, SpriteRestriction.allUsers, 'misa', undefined, true);
       const towns = CoveyTownsStore.getInstance()
         .getTowns();
       const entry = towns.filter(townInfo => townInfo.coveyTownID === town.coveyTownID);
@@ -177,8 +201,8 @@ describe('CoveyTownsStore', () => {
         .toBe(town.coveyTownID);
     });
     it('Should include each CoveyTownID if there are multiple towns with the same friendlyName', async () => {
-      const town = createTownForTesting(undefined, true);
-      const secondTown = createTownForTesting(town.friendlyName, true);
+      const town = createTownForTesting(MapSelection.Standard, false, true, SpriteRestriction.allUsers, 'misa', undefined, true);
+      const secondTown = createTownForTesting(MapSelection.Standard, false, true, SpriteRestriction.allUsers, 'misa', town.friendlyName, true);
       const towns = CoveyTownsStore.getInstance()
         .getTowns()
         .filter(townInfo => townInfo.friendlyName === town.friendlyName);
@@ -198,10 +222,82 @@ describe('CoveyTownsStore', () => {
       } else {
         fail('Expected the coveyTownIDs to match the towns that were created');
       }
-
     });
+
+    it('Should include towns with different mapID', async () => {
+      const town = createTownForTesting(MapSelection.Classroom, false, false, SpriteRestriction.allUsers, 'misa', undefined, true);
+      const secondTown = createTownForTesting(MapSelection.Conference, false, false, SpriteRestriction.allUsers, 'misa', town.friendlyName, true);
+      const thirdTown = createTownForTesting(MapSelection.Party, false, false, SpriteRestriction.allUsers, 'misa', town.friendlyName, true);
+      const towns = CoveyTownsStore.getInstance()
+        .getTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName);
+      expect(towns.length)
+        .toBe(3);
+      expect(towns[0].friendlyName)
+        .toBe(town.friendlyName);
+      expect(towns[1].friendlyName)
+        .toBe(secondTown.friendlyName);
+      expect(towns[2].friendlyName)
+        .toBe(thirdTown.friendlyName);
+      expect(towns[0].mapID).toBe(MapSelection.Classroom);
+      expect(towns[1].mapID).toBe(MapSelection.Conference);
+      expect(towns[2].mapID).toBe(MapSelection.Party);
+    });
+
+    it('Should include towns with video or proximity disabled', async () => {
+      const mapID1 = MapSelection.Conference;
+      const mapID2 = MapSelection.Standard;
+      const town = createTownForTesting(mapID1, true, false, SpriteRestriction.allUsers, 'misa', undefined, true);
+      createTownForTesting(mapID2, false, true, SpriteRestriction.allUsers, 'misa', town.friendlyName, true);
+      const towns = CoveyTownsStore.getInstance()
+        .getTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName);
+      expect(towns.length)
+        .toBe(2);
+      expect(towns[0].friendlyName)
+        .toBe(town.friendlyName);
+      expect(towns[1].friendlyName)
+        .toBe(town.friendlyName);
+      expect(towns[0].enableVideo).toBe(true);
+      expect(towns[1].enableVideo).toBe(false);
+      expect(towns[0].enableProximity).toBe(false);
+      expect(towns[1].enableProximity).toBe(true);
+    });
+
+    it('Should include towns with different spriteRestrictions', async () => {
+      const town = createTownForTesting(MapSelection.Classroom, true, false, SpriteRestriction.passwordUsers, 'misa', undefined, true);
+      const secondTown = createTownForTesting(MapSelection.Classroom, false, true, SpriteRestriction.noUsers, 'misa', town.friendlyName, true);
+      const towns = CoveyTownsStore.getInstance()
+        .getTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName);
+      expect(towns.length)
+        .toBe(2);
+      expect(towns[0].friendlyName)
+        .toBe(town.friendlyName);
+      expect(towns[1].friendlyName)
+        .toBe(secondTown.friendlyName);
+      expect(towns[0].spriteRestriction).toBe(SpriteRestriction.passwordUsers);
+      expect(towns[1].spriteRestriction).toBe(SpriteRestriction.noUsers);
+    });
+
+    it('Should include towns with different restrictedSpriteNames', async () => {
+      const town = createTownForTesting(MapSelection.Classroom, true, false, SpriteRestriction.passwordUsers, 'misa', undefined, true);
+      const secondTown = createTownForTesting(MapSelection.Classroom, false, true, SpriteRestriction.passwordUsers, 'bido', town.friendlyName, true);
+      const towns = CoveyTownsStore.getInstance()
+        .getTowns()
+        .filter(townInfo => townInfo.friendlyName === town.friendlyName);
+      expect(towns.length)
+        .toBe(2);
+      expect(towns[0].friendlyName)
+        .toBe(town.friendlyName);
+      expect(towns[1].friendlyName)
+        .toBe(secondTown.friendlyName);
+      expect(towns[0].restrictedSpriteName).toBe('misa');
+      expect(towns[1].restrictedSpriteName).toBe('bido');
+    });
+
     it('Should not include private towns', async () => {
-      const town = createTownForTesting(undefined, false);
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa', undefined, false);
       const towns = CoveyTownsStore.getInstance()
         .getTowns()
         .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID);
@@ -209,8 +305,8 @@ describe('CoveyTownsStore', () => {
         .toBe(0);
     });
     it('Should not include private towns, even if there is a public town of same name', async () => {
-      const town = createTownForTesting(undefined, false);
-      const town2 = createTownForTesting(town.friendlyName, true);
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa', undefined, false);
+      const town2 = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa', town.friendlyName, true);
       const towns = CoveyTownsStore.getInstance()
         .getTowns()
         .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID);
@@ -222,7 +318,7 @@ describe('CoveyTownsStore', () => {
         .toBe(town2.friendlyName);
     });
     it('Should not include deleted towns', async () => {
-      const town = createTownForTesting(undefined, true);
+      const town = createTownForTesting(MapSelection.Standard, true, true, SpriteRestriction.allUsers, 'misa', undefined, true);
       const towns = CoveyTownsStore.getInstance()
         .getTowns()
         .filter(townInfo => townInfo.friendlyName === town.friendlyName || townInfo.coveyTownID === town.coveyTownID);

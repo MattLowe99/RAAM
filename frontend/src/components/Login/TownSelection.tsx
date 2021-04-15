@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import assert from "assert";
 import {
   Box,
@@ -9,11 +9,16 @@ import {
   FormLabel,
   Heading,
   Input,
+  Radio,
+  RadioGroup,
+  Select,
+  SimpleGrid,
   Stack,
   Table,
   TableCaption,
   Tbody,
   Td,
+  Text,
   Th,
   Thead,
   Tr,
@@ -21,12 +26,16 @@ import {
 } from '@chakra-ui/react';
 import useVideoContext from '../VideoCall/VideoFrontend/hooks/useVideoContext/useVideoContext';
 import Video from '../../classes/Video/Video';
-import { CoveyTownInfo, TownJoinResponse, } from '../../classes/TownsServiceClient';
+import {CoveyTownInfo, TownJoinResponse,} from '../../classes/TownsServiceClient';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
+import {MapSelection, SpriteRestriction} from '../../CoveyTypes';
+
 
 interface TownSelectionProps {
-  doLogin: (initData: TownJoinResponse) => Promise<boolean>
+  doLogin: (initData: TownJoinResponse, mapID: MapSelection, enableVideo: boolean, enableProximity: boolean) => Promise<boolean>
 }
+
+const avatars = ['misa', 'bido'];
 
 export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Element {
   const [userName, setUserName] = useState<string>(Video.instance()?.userName || '');
@@ -40,9 +49,14 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   const toast = useToast();
   const avatars = ['misa', 'bido', 'nina', 'lilo'];
   const preview = `../../assets/${avatars[avatarIndex]}-preview.png`;
+  const [mapID, setMapID] = useState<string>('1');
+  const [enableVideo, setEnableVideo] = useState<boolean>(true);
+  const [enableProximity, setEnableProximity] = useState<boolean>(true);
+  const [spriteRestriction, setSpriteRestriction] = useState<string>('1');
+  const [restrictedSprite, setRestrictedSprite] = useState<string>('misa');
+  const [spritePassword, setSpritePassword] = useState<string>('');
 
   const updateTownListings = useCallback(() => {
-    // console.log(apiClient);
     apiClient.listTowns()
       .then((towns) => {
         setCurrentPublicTowns(towns.towns
@@ -58,7 +72,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     };
   }, [updateTownListings]);
 
-  const handleJoin = useCallback(async (coveyRoomID: string, avatar: string) => {
+  const handleJoin = useCallback(async (coveyRoomID: string, avatar: string, index: number, password: string) => {
     try {
       if (!userName || userName.length === 0) {
         toast({
@@ -76,9 +90,34 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
         });
         return;
       }
-      const initData = await Video.setup(userName, coveyRoomID, avatar);
+      const initData = await Video.setup(userName, coveyRoomID, avatar, password);
 
-      const loggedIn = await doLogin(initData);
+      if (initData.spriteRestriction === SpriteRestriction.passwordUsers) {
+        if (!initData.spritePasswordOverride && initData.restrictedSpriteName !== avatars[index]) {
+          const capitalizedName = initData.restrictedSpriteName.charAt(0).toUpperCase() + initData.restrictedSpriteName.slice(1);
+          toast({
+            title: 'Unable to join town',
+            description: `Please enter a valid password to override avatar restriction or select ${capitalizedName} as your avatar.`,
+            status: 'error',
+          });
+          return;
+        }
+      }
+
+      if (initData.spriteRestriction === SpriteRestriction.noUsers) {
+        if (initData.restrictedSpriteName !== avatars[index]) {
+          const capitalizedName = initData.restrictedSpriteName.charAt(0).toUpperCase() + initData.restrictedSpriteName.slice(1);
+          toast({
+            title: 'Unable to join town',
+            description: `Please select ${capitalizedName} as your avatar.`,
+            status: 'error',
+          });
+          return;
+        }
+      }
+
+      const loggedIn = await doLogin(initData, initData.mapID, initData.enableVideo, initData.enableProximity);
+
       if (loggedIn) {
         assert(initData.providerVideoToken);
         await connect(initData.providerVideoToken);
@@ -93,6 +132,21 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
   }, [doLogin, userName, connect, toast]);
 
   const handleCreate = async (index: number) => {
+    let spriteCustom = SpriteRestriction.allUsers;
+    if (spriteRestriction === '2') {
+      spriteCustom = SpriteRestriction.passwordUsers;
+    } else if (spriteRestriction === '3') {
+      spriteCustom = SpriteRestriction.noUsers;
+    }
+
+    let mapIDE = MapSelection.Party;
+    if (mapID === '1') {
+      mapIDE = MapSelection.Standard;
+    } else if (mapID === '2') {
+      mapIDE = MapSelection.Conference;
+    } else if (mapID === '3') {
+      mapIDE = MapSelection.Classroom;
+    }
     if (!userName || userName.length === 0) {
       toast({
         title: 'Unable to create town',
@@ -109,27 +163,46 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       });
       return;
     }
+    if (spriteCustom !== SpriteRestriction.allUsers && restrictedSprite !== avatars[index]) {
+      toast({
+        title: 'Unable to create town',
+        description: 'Please set your selected avatar to match restricted avatar choice.',
+        status: 'error',
+      });
+      return;
+    }
     try {
       const newTownInfo = await apiClient.createTown({
         friendlyName: newTownName,
-        isPubliclyListed: newTownIsPublic
+        isPubliclyListed: newTownIsPublic,
+        mapID: mapIDE,
+        enableVideo,
+        enableProximity,
+        spriteRestriction: spriteCustom,
+        restrictedSpriteName: restrictedSprite,
       });
       let privateMessage = <></>;
+      let restrictionMessage = <></>;
       if (!newTownIsPublic) {
         privateMessage =
           <p>This town will NOT be publicly listed. To re-enter it, you will need to use this
             ID: {newTownInfo.coveyTownID}</p>;
       }
+      if (spriteCustom === SpriteRestriction.passwordUsers) {
+        restrictionMessage =
+          <p>Please record this value, you will not be able to view it again. To override sprite restriction, enter: {newTownInfo.spriteRestrictionPassword}</p>
+      }
       toast({
         title: `Town ${newTownName} is ready to go!`,
         description: <>{privateMessage}Please record these values in case you need to change the
           room:<br/>Town ID: {newTownInfo.coveyTownID}<br/>Town Editing
-          Password: {newTownInfo.coveyTownPassword}</>,
+          Password: {newTownInfo.coveyTownPassword}<br/>
+          {restrictionMessage}</>,
         status: 'success',
         isClosable: true,
         duration: null,
       })
-      await handleJoin(newTownInfo.coveyTownID, avatars[avatarIndex]);
+      await handleJoin(newTownInfo.coveyTownID, avatars[index], index, spritePassword);
     } catch (err) {
       toast({
         title: 'Unable to connect to Towns Service',
@@ -138,7 +211,6 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
       })
     }
   };
-
 
   const handleAvatar = (increase: boolean) => {
     if (increase) {
@@ -155,13 +227,44 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     }
   }
 
+  const handleAvatarName = (index: number) => {
+    const avatarName = avatars[index];
+
+    return avatarName.charAt(0).toUpperCase() + avatarName.slice(1);
+  }
+
+  const generateSpriteOptions = () => {
+    const optionsArr = [];
+
+    for (let i = 0; i < avatars.length; i += 1) {
+      const uppercaseName = handleAvatarName(i);
+
+      optionsArr.push(<option key={`name-${i}`} value={avatars[i]}>{uppercaseName}</option>);
+    }
+
+    return optionsArr;
+  }
+
+  function formatAvatarRules(mode: SpriteRestriction, avatarName: string) {
+    let result = '';
+
+    if (mode === SpriteRestriction.allUsers) {
+      result = 'Any';
+    } else if (mode === SpriteRestriction.passwordUsers) {
+      result = `Password (Default: ${avatarName.charAt(0).toUpperCase() + avatarName.slice(1)})`
+    } else if (mode === SpriteRestriction.noUsers) {
+      result = `Locked (Default: ${avatarName.charAt(0).toUpperCase() + avatarName.slice(1)})`;
+    }
+
+    return result;
+  }
+
   return (
     <>
       <form>
         <Stack>
           <Box p="4" borderWidth="1px" borderRadius="lg">
             <Heading as="h2" size="lg">Select a username</Heading>
-
             <FormControl>
               <FormLabel htmlFor="name">Name</FormLabel>
               <Input autoFocus name="name" placeholder="Your name"
@@ -179,15 +282,21 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                 </Box>
                 <Box flex="3"/>
               </Flex>
+              <Heading as="h3" size="md" pl="16">{handleAvatarName(avatarIndex)}</Heading>
               <Flex p="4">
                 <Box flex="1">
-                <Input name="avatarSelection" readonly placeholder="Avatar name"
-                       value={avatars[avatarIndex]}/>
                   <Button data-testid='updateAvatar'
                           onClick={() => handleAvatar(false)}>&#8592;</Button>
-                  <text>&nbsp;&nbsp;&nbsp;&nbsp;{avatarIndex + 1}/{avatars.length}&nbsp;&nbsp;&nbsp;&nbsp;</text>
+                  &nbsp;&nbsp;&nbsp;&nbsp;{avatarIndex + 1}/{avatars.length}&nbsp;&nbsp;&nbsp;&nbsp;
                   <Button data-testid='updateAvatar'
                           onClick={() => handleAvatar(true)}>&#8594;</Button>
+                  <FormControl>
+                    <FormLabel htmlFor="avatarPassword">Avatar Restriction Password</FormLabel>
+                    <Input name="avatarPassword" placeholder="Enter password"
+                           value={spritePassword}
+                           onChange={event => setSpritePassword(event.target.value)}
+                    />
+                  </FormControl>
                 </Box>
               </Flex>
             </FormControl>
@@ -216,6 +325,58 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                 <Button data-testid="newTownButton" onClick={() => handleCreate(avatarIndex)}>Create</Button>
               </Box>
             </Flex>
+            <Flex>
+              <Box p="4" borderWidth="1px" borderRadius="lg">
+                <Heading as="h2" size="lg">Select a Room Map</Heading>
+                  <RadioGroup value={mapID} onChange={event => setMapID(event.toString())}>
+                    <SimpleGrid spacing={1} columns={9}>
+                      <Radio value='1'> Playground </Radio>
+                      <Radio value='2'> Conference Room </Radio>
+                      <Radio value='3'> Class Room </Radio>
+                      <Radio value='4'> Party Room </Radio>
+                    </SimpleGrid>
+                  </RadioGroup>
+              </Box>
+              <Box>
+                <FormControl>
+                  <FormLabel htmlFor="enableVideo">Video</FormLabel>
+                  <Checkbox id="enableVideo" name="enableVideo" isChecked={enableVideo}
+                          onChange={(e) => {
+                            setEnableVideo(e.target.checked)
+                          }}/>
+                </FormControl>
+              </Box>
+              <Box>
+                <FormControl>
+                  <FormLabel htmlFor="enableProximity">Enable Proximity</FormLabel>
+                  <Checkbox id="enableProximity" name="enableProximity" isChecked={enableProximity}
+                          onChange={(e) => {
+                            setEnableProximity(e.target.checked)
+                          }}/>
+                </FormControl>
+              </Box>
+            </Flex>
+            <Flex>
+              <Box p="4" borderWidth="1px" borderRadius="lg">
+                <Heading as="h2" size="lg">Avatar Customization</Heading>
+                <Text fontSize="sm">Set which users are allowed to customize their avatar.</Text>
+                <RadioGroup value={spriteRestriction} onChange={event => setSpriteRestriction(event.toString())}>
+                  <SimpleGrid spacing={1} columns={9}>
+                      <Radio value='1'> All Users </Radio>
+                      <Radio value='2'> Password Users </Radio>
+                      <Radio value='3'> No Users </Radio>
+                  </SimpleGrid>
+                </RadioGroup>
+              </Box>
+              <Box display={spriteRestriction === '1' ? 'none':''}>
+                <FormControl>
+                  <FormLabel htmlFor="chooseSprite">Choose Sprite for Restricted Users</FormLabel>
+                  <Select id="chooseSprite" size="md" w={200} onChange={event => setRestrictedSprite(event.target.value)}>
+                    {generateSpriteOptions()}
+                  </Select>
+                </FormControl>
+              </Box>
+            </Flex>
           </Box>
           <Heading p="4" as="h2" size="lg">-or-</Heading>
 
@@ -229,7 +390,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                        onChange={event => setTownIDToJoin(event.target.value)}/>
               </FormControl>
                 <Button data-testid='joinTownByIDButton'
-                        onClick={() => handleJoin(townIDToJoin, avatars[avatarIndex])}>Connect</Button>
+                        onClick={() => handleJoin(townIDToJoin, avatars[avatarIndex], avatarIndex, spritePassword)}>Connect</Button>
               </Flex>
 
             </Box>
@@ -238,13 +399,17 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <Box maxH="500px" overflowY="scroll">
               <Table>
                 <TableCaption placement="bottom">Publicly Listed Towns</TableCaption>
-                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Activity</Th></Tr></Thead>
+                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Map ID</Th><Th>Video</Th><Th>Proximity</Th><Th>Avatar Mode</Th><Th>Activity</Th></Tr></Thead>
                 <Tbody>
                   {currentPublicTowns?.map((town) => (
                     <Tr key={town.coveyTownID}><Td role='cell'>{town.friendlyName}</Td><Td
                       role='cell'>{town.coveyTownID}</Td>
+                      <Td role='cell'>{town.mapID.toString()}</Td>
+                      <Td role='cell'>{town.enableVideo.toString()}</Td>
+                      <Td role='cell'>{town.enableProximity.toString()}</Td>
+                      <Td role='cell'>{formatAvatarRules(town.spriteRestriction, town.restrictedSpriteName)}</Td>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
-                        <Button onClick={() => handleJoin(town.coveyTownID, avatars[avatarIndex])}
+                        <Button onClick={() => handleJoin(town.coveyTownID, avatars[avatarIndex], avatarIndex, spritePassword)}
                                 disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
                   ))}
                 </Tbody>

@@ -2,6 +2,18 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import assert from 'assert';
 import { UserLocation } from '../CoveyTypes';
 
+export enum MapSelection {
+  Standard,
+  Conference,
+  Classroom,
+  Party,
+}
+
+export enum SpriteRestriction {
+  allUsers,
+  passwordUsers,
+  noUsers,
+}
 
 export type ServerPlayer = { _id: string, _userName: string, location: UserLocation };
 
@@ -11,8 +23,12 @@ export type ServerPlayer = { _id: string, _userName: string, location: UserLocat
 export interface TownJoinRequest {
   /** userName of the player that would like to join * */
   userName: string;
+  /** avatarName of the avatar that would the player like to use * */
+  avatarName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
+  /** Password to allow custom sprite selection if enabled in requested town */
+  spriteRestrictionPassword: string;
 }
 
 /**
@@ -34,6 +50,18 @@ export interface TownJoinResponse {
   friendlyName: string;
   /** Is this a private town? * */
   isPubliclyListed: boolean;
+  /** The map ID of this town  */
+  mapID: MapSelection;
+  /** enable video */
+  enableVideo: boolean;
+  /** enable proximity */
+  enableProximity: boolean;
+  /** whether this player is able to choose any sprite in this town */
+  spritePasswordOverride: boolean;
+  /** Type of sprite restriction in this town */
+  spriteRestriction: SpriteRestriction;
+  /** Name of sprite used for restricted players, if enabled in this town */
+  restrictedSpriteName: string;
 }
 
 /**
@@ -42,6 +70,11 @@ export interface TownJoinResponse {
 export interface TownCreateRequest {
   friendlyName: string;
   isPubliclyListed: boolean;
+  mapID: MapSelection;
+  enableVideo: boolean;
+  enableProximity: boolean;
+  spriteRestriction: SpriteRestriction;
+  restrictedSpriteName: string;
 }
 
 /**
@@ -50,6 +83,7 @@ export interface TownCreateRequest {
 export interface TownCreateResponse {
   coveyTownID: string;
   coveyTownPassword: string;
+  spriteRestrictionPassword: string;
 }
 
 /**
@@ -77,6 +111,9 @@ export interface TownUpdateRequest {
   coveyTownPassword: string;
   friendlyName?: string;
   isPubliclyListed?: boolean;
+  mapID?: MapSelection;
+  enableVideo?: boolean;
+  enableProximity?: boolean;
 }
 
 /**
@@ -92,7 +129,12 @@ export type CoveyTownInfo = {
   friendlyName: string;
   coveyTownID: string;
   currentOccupancy: number;
-  maximumOccupancy: number
+  maximumOccupancy: number;
+  mapID: MapSelection;
+  enableVideo: boolean
+  enableProximity: boolean;
+  spriteRestriction: SpriteRestriction;
+  restrictedSpriteName: string;
 };
 
 export default class TownsServiceClient {

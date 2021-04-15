@@ -22,6 +22,11 @@ export type CoveyAppState = {
   currentTownID: string,
   currentTownIsPubliclyListed: boolean,
   myPlayerID: string,
+  mapID: MapSelection,
+  enableVideo: boolean,
+  enableProximity: boolean,
+  spriteRestriction: SpriteRestriction,
+  restrictedSpriteName: string,
   players: Player[],
   currentLocation: UserLocation,
   nearbyPlayers: NearbyPlayers,
@@ -29,3 +34,16 @@ export type CoveyAppState = {
   socket: Socket | null,
   apiClient: TownsServiceClient,
 };
+
+export enum MapSelection {
+  Standard,
+  Conference,
+  Classroom,
+  Party
+}
+
+export enum SpriteRestriction {
+  allUsers,
+  passwordUsers,
+  noUsers,
+}
