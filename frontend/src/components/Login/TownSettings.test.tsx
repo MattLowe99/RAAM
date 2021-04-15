@@ -97,6 +97,8 @@ describe('Part 4 - Town Settings', () => {
       friendlyName: nanoid(),
       isPubliclyListed: true,
       townID: nanoid(),
+      enableVideo: true,
+      enableProximity: true,
     }
     await openSettingsPane(params);
     await waitFor(() => expect(renderData.getByText(`Edit town ${params.friendlyName} (${params.townID})`))
@@ -111,6 +113,8 @@ describe('Part 4 - Town Settings', () => {
       friendlyName: nanoid(),
       isPubliclyListed: false,
       townID: nanoid(),
+      enableVideo: true,
+      enableProximity: true,
     }
     await openSettingsPane(params);
     await waitFor(() => expect(renderData.getByText(`Edit town ${params.friendlyName} (${params.townID})`))
@@ -150,9 +154,7 @@ describe('Part 4 - Town Settings', () => {
           isPubliclyListed: true,
           enableVideo: undefined,
           enableProximity: undefined,
-          mapID : MapSelection.Party,
-          spriteRestriction: SpriteRestriction.allUsers,
-          restrictedSpriteName: '',
+          mapID : MapSelection.Party
         }));
       expect(mockDeleteTown).not.toBeCalled();
 
