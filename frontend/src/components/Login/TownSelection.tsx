@@ -243,6 +243,20 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
     return optionsArr;
   }
 
+  function formatAvatarRules(mode: SpriteRestriction, avatarName: string) {
+    let result = '';
+
+    if (mode === SpriteRestriction.allUsers) {
+      result = 'Any';
+    } else if (mode === SpriteRestriction.passwordUsers) {
+      result = `Password (Default: ${avatarName.charAt(0).toUpperCase() + avatarName.slice(1)})`
+    } else if (mode === SpriteRestriction.noUsers) {
+      result = `Locked (Default: ${avatarName.charAt(0).toUpperCase() + avatarName.slice(1)})`;
+    }
+
+    return result;
+  }
+
   return (
     <>
       <form>
@@ -383,7 +397,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
             <Box maxH="500px" overflowY="scroll">
               <Table>
                 <TableCaption placement="bottom">Publicly Listed Towns</TableCaption>
-                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Map ID</Th><Th>Video</Th><Th>Proximity</Th><Th>Activity</Th></Tr></Thead>
+                <Thead><Tr><Th>Room Name</Th><Th>Room ID</Th><Th>Map ID</Th><Th>Video</Th><Th>Proximity</Th><Th>Activity</Th><Th>Avatar Mode</Th></Tr></Thead>
                 <Tbody>
                   {currentPublicTowns?.map((town) => (
                     <Tr key={town.coveyTownID}><Td role='cell'>{town.friendlyName}</Td><Td
@@ -391,6 +405,7 @@ export default function TownSelection({ doLogin }: TownSelectionProps): JSX.Elem
                       <Td role='cell'>{town.mapID.toString()}</Td>
                       <Td role='cell'>{town.enableVideo.toString()}</Td>
                       <Td role='cell'>{town.enableProximity.toString()}</Td>
+                      <Td role='cell'>{formatAvatarRules(town.spriteRestriction, town.restrictedSpriteName)}</Td>
                       <Td role='cell'>{town.currentOccupancy}/{town.maximumOccupancy}
                         <Button onClick={() => handleJoin(town.coveyTownID, avatars[avatarIndex], avatarIndex, spritePassword)}
                                 disabled={town.currentOccupancy >= town.maximumOccupancy}>Connect</Button></Td></Tr>
