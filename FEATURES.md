@@ -26,7 +26,9 @@ Below is the user interface that was changed to allow selection of map, enabling
 
 The town maps are created with Tiled software, which has no limitations on how many maps a user can create.
 
-Once inside the town, the host, or anyone provided with the password of the town (given from host), can update map selection. Anyone with the town password can also enable/disable video and proximity using the town settings pop-up window. The procedure is the same as updating other town properties, such as name. Given the scope of our user stories and main purpose, it was intentionally decided to not allow avatar customization mode or the default avatar to be updated once a town was already created. This design choice results in data consistency for all users and ensures no users will unintentionally violate town avatar rules.
+Once inside the town, the host, or anyone provided with the password of the town (given from host), can update map selection. Anyone with the town password can also enable/disable video and proximity using the town settings pop-up window. The procedure is the same as updating other town properties, such as name.
+
+Given the scope of our user stories and main purpose, it was intentionally decided to not allow avatar customization mode or the default avatar to be updated once a town was already created. This design choice results in data consistency for all users and ensures no users will unintentionally violate town avatar rules. For instance, if a professor decides after town creation to update the town to only allow one avatar for everyone, students who accidentally stay in the room between classes could be perceived as trying to circumvent the avatar restrictions and possibly face disciplinary action.
 
 Below is the user interface changed to update town features.
 

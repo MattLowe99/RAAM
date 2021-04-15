@@ -21,7 +21,7 @@ export enum SpriteRestriction {
 export interface TownJoinRequest {
   /** userName of the player that would like to join * */
   userName: string;
-  /** avatarName of the avatar that would the player like to user * */
+  /** avatarName of the avatar that would the player like to use * */
   avatarName: string;
   /** ID of the town that the player would like to join * */
   coveyTownID: string;
@@ -112,8 +112,6 @@ export interface TownUpdateRequest {
   mapID?: MapSelection;
   enableVideo?: boolean;
   enableProximity?: boolean;
-  spriteRestriction?: SpriteRestriction;
-  restrictedSpriteName?: string;
 }
 
 /**

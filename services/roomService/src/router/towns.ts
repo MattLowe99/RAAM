@@ -101,8 +101,6 @@ export default function addTownRoutes(http: Server, app: Express): io.Server {
 	      mapID: req.body.mapID,
 	      enableVideo: req.body.enableVideo,
 	      enableProximity: req.body.enableProximity,
-        spriteRestriction: req.body.spriteRestriction,
-        restrictedSpriteName: req.body.restrictedSpriteName,
       });
       res.status(StatusCodes.OK)
         .json(result);
