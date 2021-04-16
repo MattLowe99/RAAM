@@ -102,7 +102,6 @@ class CoveyGameScene extends Phaser.Scene {
       return;
     }
     players.forEach((p) => {
-      this.updateAvatar(p);
       this.updatePlayerLocation(p);
     });
     // Remove disconnected players from board
@@ -122,15 +121,6 @@ class CoveyGameScene extends Phaser.Scene {
           (p) => p.id === player.id,
         ),
       );
-    }
-  }
-
-  updateAvatar(player: Player) {
-    const myPlayer = this.players.find((p) => p.id === player.id);
-    if (myPlayer) {
-      this.avatar = myPlayer.avatar;
-    } else {
-      this.avatar = 'Misa';
     }
   }
 
