@@ -327,7 +327,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
           // Check for call sequence
           await waitFor(() => expect(mockVideoSetup)
-            .toBeCalledWith(userName, townID, 'misa', ''));
+            .toBeCalledWith(userName, townID, 'Misa', ''));
           await waitFor(() => expect(doLoginMock)
             .toBeCalledWith({ providerVideoToken: videoToken, mapID: mid, enableVideo: true, enableProximity: true }, mid, true, true));
             // .toBeCalledWith({ providerVideoToken: videoToken }));

@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 import Player, { UserLocation } from '../../classes/Player';
 import Video from '../../classes/Video/Video';
 import useCoveyAppState from '../../hooks/useCoveyAppState';
-import { MapSelection } from '../../CoveyTypes';
+import { MapSelection, AvatarSelection } from '../../CoveyTypes';
 
 /*
 enum MapSelection {
@@ -23,6 +23,8 @@ class CoveyGameScene extends Phaser.Scene {
   private id?: string;
 
   private avatar?: string;
+
+  private numOfAvatars = Object.keys(AvatarSelection).length / 2;
 
   private players: Player[] = [];
 
@@ -59,8 +61,10 @@ class CoveyGameScene extends Phaser.Scene {
     // this.load.image("logo", logoImg);
     // this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
     // this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
-    this.load.atlas('misa-atlas', '/assets/atlas/misa-atlas.png', '/assets/atlas/misa-atlas.json');
-    this.load.atlas('bido-atlas', '/assets/atlas/bido-atlas.png', '/assets/atlas/bido-atlas.json');
+    for (let i = 0; i < this.numOfAvatars; i += 1) {
+      const avatarToLoad = AvatarSelection[i];
+      this.load.atlas(`${avatarToLoad}-atlas`, `/assets/atlas/${avatarToLoad}-atlas.png`, `/assets/atlas/${avatarToLoad}-atlas.json`);
+    }
     // if (this.mapSelection === MapSelection.Standard) {
     //     this.load.image('tiles', '/assets/tilesets/tuxmon-sample-32px-extruded.png');
     //     this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
@@ -90,7 +94,6 @@ class CoveyGameScene extends Phaser.Scene {
         this.load.tilemapTiledJSON('map', '/assets/tilemaps/tuxemon-town.json');
         break;
     }
-    this.load.atlas('atlas', '/assets/atlas/atlas.png', '/assets/atlas/atlas.json');
   }
 
   updatePlayersLocations(players: Player[]) {
@@ -99,7 +102,6 @@ class CoveyGameScene extends Phaser.Scene {
       return;
     }
     players.forEach((p) => {
-      this.updateAvatar(p);
       this.updatePlayerLocation(p);
     });
     // Remove disconnected players from board
@@ -119,15 +121,6 @@ class CoveyGameScene extends Phaser.Scene {
           (p) => p.id === player.id,
         ),
       );
-    }
-  }
-
-  updateAvatar(player: Player) {
-    const myPlayer = this.players.find((p) => p.id === player.id);
-    if (myPlayer) {
-      this.avatar = myPlayer.avatar;
-    } else {
-      this.avatar = 'misa';
     }
   }
 
@@ -169,10 +162,10 @@ class CoveyGameScene extends Phaser.Scene {
       myPlayer.label?.setX(player.location.x);
       myPlayer.label?.setY(player.location.y - 20);
       if (player.location.moving) {
-        sprite.anims.play(`${this.avatar}-${player.location.rotation}-walk`, true);
+        sprite.anims.play(`${player.avatar}-${player.location.rotation}-walk`, true);
       } else {
         sprite.anims.stop();
-        sprite.setTexture(`${this.avatar}-atlas`, `${player.avatar}-${player.location.rotation}`);
+        sprite.setTexture(`${player.avatar}-atlas`, `${player.avatar}-${player.location.rotation}`);
       }
     }
   }
@@ -419,54 +412,58 @@ class CoveyGameScene extends Phaser.Scene {
     // Create the player's walking animations from the texture atlas. These are stored in the global
     // animation manager so any sprite can access them.
     const { anims } = this;
-    anims.create({
-      key: `${this.avatar}-left-walk`,
-      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
-        prefix: `${this.avatar}-left-walk.`,
-        start: 0,
-        end: 3,
-        zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    anims.create({
-      key: `${this.avatar}-right-walk`,
-      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
-        prefix: `${this.avatar}-right-walk.`,
-        start: 0,
-        end: 3,
-        zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    anims.create({
-      key: `${this.avatar}-front-walk`,
-      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
-        prefix: `${this.avatar}-front-walk.`,
-        start: 0,
-        end: 3,
-        zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
-    anims.create({
-      key: `${this.avatar}-back-walk`,
-      frames: anims.generateFrameNames(`${this.avatar}-atlas`, {
-        prefix: `${this.avatar}-back-walk.`,
-        start: 0,
-        end: 3,
-        zeroPad: 3,
-      }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    
+    for (let i = 0; i < this.numOfAvatars; i += 1) {
+      const avatar = AvatarSelection[i];
+      anims.create({
+        key: `${avatar}-left-walk`,
+        frames: anims.generateFrameNames(`${avatar}-atlas`, {
+          prefix: `${avatar}-left-walk.`,
+          start: 0,
+          end: 3,
+          zeroPad: 3,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+      anims.create({
+        key: `${avatar}-right-walk`,
+        frames: anims.generateFrameNames(`${avatar}-atlas`, {
+          prefix: `${avatar}-right-walk.`,
+          start: 0,
+          end: 3,
+          zeroPad: 3,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+      anims.create({
+        key: `${avatar}-front-walk`,
+        frames: anims.generateFrameNames(`${avatar}-atlas`, {
+          prefix: `${avatar}-front-walk.`,
+          start: 0,
+          end: 3,
+          zeroPad: 3,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+      anims.create({
+        key: `${avatar}-back-walk`,
+        frames: anims.generateFrameNames(`${avatar}-atlas`, {
+          prefix: `${avatar}-back-walk.`,
+          start: 0,
+          end: 3,
+          zeroPad: 3,
+        }),
+        frameRate: 10,
+        repeat: -1,
+      });
+  }
 
-    const camera = this.cameras.main;
-    camera.startFollow(this.player.sprite);
-    camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+  const camera = this.cameras.main;
+  camera.startFollow(this.player.sprite);
+  camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
 
 
 

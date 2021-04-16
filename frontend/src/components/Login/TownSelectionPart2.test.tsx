@@ -195,13 +195,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName,
-          avatarName: 'misa',
+          avatarName: 'Misa',
           spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
+          .toBeCalledWith(userName, coveyTownID, 'Misa', ''));
         await waitFor(() => expect(doLoginMock)
           .toBeCalledWith({ providerVideoToken: videoToken, mapID: mid, enableVideo: true, enableProximity: true }, mid, true, true));
       await waitFor(() => expect(mockConnect)
@@ -210,10 +210,11 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to join town" if the username is empty', async () => {
         const coveyTownID = nanoid();
+        
         await joinTownWithOptions({
           coveyTownID,
           userName: '',
-          avatarName: 'misa',
+          avatarName: 'Misa',
           spriteRestrictionPassword: '',
         });
         await waitFor(() => expect(mockToast)
@@ -225,10 +226,11 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to join town" if the TownID is empty', async () => {
         const userName = nanoid();
+
         await joinTownWithOptions({
           coveyTownID: '',
           userName,
-          avatarName: 'misa',
+          avatarName: 'Misa',
           spriteRestrictionPassword: ''
         });
         await waitFor(() => expect(mockToast)
@@ -258,13 +260,13 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName,
-          avatarName: 'misa',
+          avatarName: 'Misa',
           spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
+          .toBeCalledWith(userName, coveyTownID, 'Misa', ''));
         await waitFor(() => expect(doLoginMock)
           .not
           // .toBeCalledWith({ providerVideoToken: videoToken }));
@@ -285,7 +287,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
         mockToast.mockReset();
         mockVideoSetup.mockReset();
         const mid2 =  MapSelection.Conference;
-        mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid2, enableVideo: true, enableProximity: true }))
+        mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid2, enableVideo: true, enableProximity: true }))
         // mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken }))
         doLoginMock.mockReset();
         doLoginMock.mockRejectedValue(new Error(errorMessage));
@@ -293,16 +295,16 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName,
-          avatarName: 'misa',
+          avatarName: 'Misa',
           spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
+          .toBeCalledWith(userName, coveyTownID, 'Misa', ''));
         await waitFor(() => expect(doLoginMock)
           // .toBeCalledWith({ providerVideoToken: videoToken }));
-          .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid2, enableVideo: true, enableProximity: true }, mid2, true, true));
+          .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid2, enableVideo: true, enableProximity: true }, mid2, true, true));
           // .toBeCalledWith({ providerVideoToken: videoToken, mapID: mid2, enableVideo: true, enableProximity: true }, mid2, true, true));
         await waitFor(() => expect(mockConnect)
           .not
@@ -329,16 +331,16 @@ describe('Town Selection - depends on Part 1 passing', () => {
         await joinTownWithOptions({
           coveyTownID,
           userName,
-          avatarName: 'misa',
+          avatarName: 'Misa',
           spriteRestrictionPassword: '',
         });
 
         // Check for call sequence
         await waitFor(() => expect(mockVideoSetup)
-          .toBeCalledWith(userName, coveyTownID, 'misa', ''));
+          .toBeCalledWith(userName, coveyTownID, 'Misa', ''));
         await waitFor(() => expect(doLoginMock)
           // .toBeCalledWith({ providerVideoToken: videoToken }));
-          // .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid3, enableVideo: true, enableProximity: true }, mid3, true, true));
+          // .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid3, enableVideo: true, enableProximity: true }, mid3, true, true));
           .toBeCalledWith({ providerVideoToken: videoToken, mapID: mid3, enableVideo: true, enableProximity: true }, mid3, true, true));
         await waitFor(() => expect(mockConnect)
           .toBeCalledWith(videoToken));
@@ -361,7 +363,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
             mockVideoSetup.mockReset();
             const videoToken = nanoid();
             const mid =  MapSelection.Standard;
-            mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid, enableVideo: true, enableProximity: true }))
+            mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid, enableVideo: true, enableProximity: true }))
             // mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken }))
             doLoginMock.mockReset();
             doLoginMock.mockReturnValue(Promise.resolve(true));
@@ -378,9 +380,9 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID, 'misa', ''));
+                .toBeCalledWith(username, town.coveyTownID, 'Misa', ''));
               await waitFor(() => expect(doLoginMock)
-                .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid, enableVideo: true, enableProximity: true }, mid, true, true));
+                .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid, enableVideo: true, enableProximity: true }, mid, true, true));
                 // .toBeCalledWith({ providerVideoToken: videoToken }));
               await waitFor(() => expect(mockConnect)
                 .toBeCalledWith(videoToken));
@@ -483,7 +485,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               mockVideoSetup.mockReset();
               const videoToken = nanoid();
               const mid2 =  MapSelection.Conference;
-              mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid2, enableVideo: true, enableProximity: true }))
+              mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid2, enableVideo: true, enableProximity: true }))
               // mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken }))
               doLoginMock.mockReset();
               doLoginMock.mockRejectedValue(new Error(errorMessage));
@@ -495,9 +497,9 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID, 'misa', ''));
+                .toBeCalledWith(username, town.coveyTownID, 'Misa', ''));
               await waitFor(() => expect(doLoginMock)
-                .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid2, enableVideo: true, enableProximity: true }, mid2, true, true));
+                .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid2, enableVideo: true, enableProximity: true }, mid2, true, true));
                 // .toBeCalledWith({ providerVideoToken: videoToken }));
               await waitFor(() => expect(mockToast)
                 .toBeCalledWith({
@@ -510,7 +512,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               mockToast.mockReset();
               mockVideoSetup.mockReset();
               const mid3 =  MapSelection.Classroom;
-              mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid3, enableVideo: true, enableProximity: true }))
+              mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid3, enableVideo: true, enableProximity: true }))
               // mockVideoSetup.mockReturnValue(Promise.resolve({ providerVideoToken: videoToken }))
               doLoginMock.mockReset();
               doLoginMock.mockReturnValue(Promise.resolve(true));
@@ -523,9 +525,9 @@ describe('Town Selection - depends on Part 1 passing', () => {
               });
               userEvent.click(button);
               await waitFor(() => expect(mockVideoSetup)
-                .toBeCalledWith(username, town.coveyTownID, 'misa', ''));
+                .toBeCalledWith(username, town.coveyTownID, 'Misa', ''));
               await waitFor(() => expect(doLoginMock)
-              .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'misa', mapID: mid3, enableVideo: true, enableProximity: true }, mid3, true, true));
+              .toBeCalledWith({ providerVideoToken: videoToken, avatarName: 'Misa', mapID: mid3, enableVideo: true, enableProximity: true }, mid3, true, true));
                 // .toBeCalledWith({ providerVideoToken: videoToken }));
               await waitFor(() => expect(mockConnect)
                 .toBeCalledWith(videoToken));

@@ -115,13 +115,6 @@ export interface TownUpdateRequest {
 }
 
 /**
- * Payload sent by the client to update an avatar
- */
-export interface AvatarUploadRequest {
-  avatarImageUrl: string;
-}
-
-/**
  * Envelope that wraps any response from the server
  */
 export interface ResponseEnvelope<T> {
@@ -190,11 +183,6 @@ export default class TownsServiceClient {
   async joinTown(requestData: TownJoinRequest): Promise<TownJoinResponse> {
     const responseWrapper = await this._axios.post('/sessions', requestData);
     return TownsServiceClient.unwrapOrThrowError(responseWrapper);
-  }
-
-  async uploadAvatar(requestData: AvatarUploadRequest): Promise<void> {
-    const responseWrapper = await this._axios.post('/', requestData);
-    return TownsServiceClient.unwrapOrThrowError(responseWrapper, true);
   }
 
 }
