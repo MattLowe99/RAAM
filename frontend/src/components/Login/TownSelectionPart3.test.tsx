@@ -306,7 +306,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
           const roomPassword = nanoid();
           const userName = nanoid();
           const townName = nanoid();
-          const avatar = '';
 
           // Configure mocks
           mockVideoSetup.mockReset();

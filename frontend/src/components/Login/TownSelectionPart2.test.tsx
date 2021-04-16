@@ -185,7 +185,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
       it('includes a connect button, which calls Video.setup, doLogin, and connect with the entered username and coveyTownID (public town)', async () => {
         const coveyTownID = nanoid();
         const userName = nanoid();
-        const avatar = '';
 
         // Configure mocks
         mockVideoSetup.mockReset();
@@ -213,7 +212,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to join town" if the username is empty', async () => {
         const coveyTownID = nanoid();
-        const avatar = '';
         
         await joinTownWithOptions({
           coveyTownID,
@@ -230,7 +228,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to join town" if the TownID is empty', async () => {
         const userName = nanoid();
-        const avatar = '';
 
         await joinTownWithOptions({
           coveyTownID: '',
@@ -249,7 +246,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
       it('displays an error toast "Unable to connect to Towns Service" if an error occurs', async () => {
         const coveyTownID = nanoid();
         const userName = nanoid();
-        const avatar = '';
         const errorMessage = `Err${nanoid()}`;
 
         // Variant one: throw error in Video.setup
@@ -364,7 +360,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
 
       it('includes a connect button in each row, which calls Video.setup, doLogin, and connect with the entered username and coveyTownID corresponding to that town', async () => {
         const rows = renderData.getAllByRole('row');
-        const avatar = '';
         for (const town of expectedTowns.towns) {
           if (town.currentOccupancy < town.maximumOccupancy) {
             mockVideoSetup.mockReset();
@@ -459,7 +454,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
       });
       it('displays an error toast "Unable to connect to Towns Service" if an error occurs', async () => {
         const rows = renderData.getAllByRole('row');
-        const avatar = '';
         for (const town of expectedTowns.towns) {
           if (town.currentOccupancy < town.maximumOccupancy) {
             // Test an error from video.setup

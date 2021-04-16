@@ -42,6 +42,19 @@ export enum MapSelection {
   Party
 }
 
+export enum AvatarSelection {
+  Misa,
+  Bido,
+  Nina,
+  Lilo,
+  Coco,
+  Riko,
+  Domo,
+  Jiji,
+  Dede,
+  Kimi
+}
+
 export enum SpriteRestriction {
   allUsers,
   passwordUsers,
