@@ -244,7 +244,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               enableVideo: true,
               enableProximity: true,
               spriteRestriction: SpriteRestriction.allUsers,
-              restrictedSpriteName: 'Misa',
+              restrictedSpriteName: 'misa',
           }));
         });
 
@@ -267,7 +267,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               enableVideo: true,
               enableProximity: true,
               spriteRestriction: SpriteRestriction.allUsers,
-              restrictedSpriteName: 'Misa',
+              restrictedSpriteName: 'misa',
            }));
 
         });
@@ -291,7 +291,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               enableVideo: true,
               enableProximity: true,
               spriteRestriction: SpriteRestriction.allUsers,
-              restrictedSpriteName: 'Misa',
+              restrictedSpriteName: 'misa',
             }));
           await waitFor(() => expect(mockToast)
             .toBeCalledWith(expect.objectContaining({
@@ -351,7 +351,7 @@ describe('Town Selection - depends on Part 1 passing', () => {
               enableVideo: true,
               enableProximity: true,
               spriteRestriction: SpriteRestriction.allUsers,
-              restrictedSpriteName: 'Misa',
+              restrictedSpriteName: 'misa',
             }));
           await waitFor(() => expect(mockToast)
             .toBeCalledWith({
