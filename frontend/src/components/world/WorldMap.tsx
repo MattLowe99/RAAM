@@ -132,8 +132,6 @@ class CoveyGameScene extends Phaser.Scene {
     } else {
       this.avatar = 'Misa';
     }
-    console.log(player.id);
-    console.log(this.avatar);
   }
 
   updatePlayerLocation(player: Player) {

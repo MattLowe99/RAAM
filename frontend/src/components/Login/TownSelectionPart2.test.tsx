@@ -143,7 +143,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
   let renderData: RenderResult<typeof import("@testing-library/dom/types/queries")>;
   let townIDToJoinField: HTMLInputElement;
   let userNameField: HTMLInputElement;
-  let avatarField: HTMLInputElement;
   let joinTownByIDButton: TargetElement;
   let expectedTowns: TownListResponse;
 
@@ -164,7 +163,6 @@ describe('Town Selection - depends on Part 1 passing', () => {
       .toBeInTheDocument());
     townIDToJoinField = renderData.getByPlaceholderText('ID of town to join, or select from list') as HTMLInputElement;
     userNameField = renderData.getByPlaceholderText('Your name') as HTMLInputElement;
-    avatarField = renderData.getByPlaceholderText('Avatar name') as HTMLInputElement;
     joinTownByIDButton = renderData.getByTestId('joinTownByIDButton');
   });
   describe('Part 2 - Joining existing towns', () => {
