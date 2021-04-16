@@ -52,7 +52,11 @@ export enum AvatarSelection {
   Domo,
   Jiji,
   Dede,
-  Kimi
+  Kimi,
+  Amanda,
+  Matt,
+  Ryan,
+  Anisa
 }
 
 export enum SpriteRestriction {
